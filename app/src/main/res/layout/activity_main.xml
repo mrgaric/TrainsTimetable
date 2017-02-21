@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.igordubrovin.trainstimetable.activities.MainActivity">
+
+    <include layout="@layout/toolbar"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:baselineAligned="false"
+            android:id="@+id/linearInformationStation"
+            android:focusableInTouchMode="true"
+            android:descendantFocusability="beforeDescendants">
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+                <com.igordubrovin.trainstimetable.customView.CustomEditText
+                    android:inputType="text"
+                    android:id="@+id/etSearchFromStation"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:hint="@string/station_from"
+                    android:maxLines="1"
+                    android:imeOptions = "actionSearch"/>
+            </android.support.design.widget.TextInputLayout>
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+                <com.igordubrovin.trainstimetable.customView.CustomEditText
+                    android:inputType="text"
+                    android:id="@+id/etSearchToStation"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:hint="@string/station_to"
+                    android:maxLines="1"
+                    android:imeOptions = "actionSearch"/>
+            </android.support.design.widget.TextInputLayout>
+            <ImageButton
+                android:id="@+id/imgBtnSearchTrain"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.25"
+                android:src="@drawable/search_black_27x27"
+                android:contentDescription="@string/search"/>
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/linearInformationStation"
+            android:id="@+id/fragmentContainer"
+            android:layout_marginTop="20dp"/>
+    </RelativeLayout>
+
+</RelativeLayout>
