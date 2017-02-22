@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rvSearchStation"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="gone">
     </android.support.v7.widget.RecyclerView>
-</LinearLayout>
+
+    <TextView
+        android:id="@+id/tvHintSearch"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/hint_search"
+        android:gravity="center_horizontal"
+        android:textSize="@dimen/dim_inform_text"
+        android:layout_marginTop="@dimen/margin_top_text"/>
+</FrameLayout>

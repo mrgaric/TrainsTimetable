@@ -3,4 +3,6 @@
     <string name="station_from">Откуда</string>
     <string name="station_to">Куда</string>
     <string name="search">Поиск</string>
+    <string name="hint_search">Начните вводить название станции</string>
+    <string name="enter_station_from">Введите станцию отправления</string>
 </resources>

@@ -1,9 +1,9 @@
 package com.igordubrovin.trainstimetable.utils;
 
 import android.content.Context;
-import android.content.CursorLoader;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.content.CursorLoader;
 
 /**
  * Created by Игорь on 21.02.2017.
@@ -23,7 +23,7 @@ public class CursorLoaderForDB extends CursorLoader{
     {
         SearchStationDB db = new SearchStationDB(getContext());
         Cursor cursor;
-        cursor = db.query(bundle.getString("upd"));
+        cursor = db.query(bundle.getString("partStationName"));
         return cursor;
     }
 }

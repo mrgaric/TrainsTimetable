@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.igordubrovin.trainstimetable.R;
+import com.igordubrovin.trainstimetable.utils.ConstProject;
 
 /**
  * Created by Игорь on 21.02.2017.
@@ -15,7 +16,7 @@ import com.igordubrovin.trainstimetable.R;
 
 public class AdapterSearchStation extends RecyclerView.Adapter<AdapterSearchStation.AssViewHolder> {
 
-    Cursor cursorItem = null;
+    private Cursor cursorItem = null;
 
     @Override
     public AssViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -25,7 +26,8 @@ public class AdapterSearchStation extends RecyclerView.Adapter<AdapterSearchStat
 
     @Override
     public void onBindViewHolder(AssViewHolder holder, int position) {
-
+        cursorItem.moveToPosition(position);
+        holder.tvStation.setText(cursorItem.getString(cursorItem.getColumnIndex(ConstProject.COLUMN_NAME_STATION)));
     }
 
     @Override

@@ -6,7 +6,8 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rvSelection"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/tvInformFragment"
@@ -14,10 +15,12 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:textSize="@dimen/dim_error_connection"
-        android:visibility="gone" />
+        android:text="@string/enter_station_from"/>
 
     <ProgressBar
+        android:id="@+id/pbLoad"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center"
+        android:visibility="gone"/>
 </FrameLayout>
