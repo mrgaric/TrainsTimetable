@@ -7,10 +7,12 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.igordubrovin.trainstimetable.R;
+import com.igordubrovin.trainstimetable.customView.CustomEditText;
 import com.igordubrovin.trainstimetable.utils.ConstProject;
 
 /**
@@ -18,19 +20,13 @@ import com.igordubrovin.trainstimetable.utils.ConstProject;
  */
 
 public class FragmentSelectionTrain extends Fragment {
-    String stationFrom = "";
-    String stationTo = "";
-
     TextView tvInformFragment;
     ProgressBar pbLoad;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null){
-            stationFrom = getArguments().getString("stationFrom");
-            stationTo = getArguments().getString("stationTo");
-        }
+        this.setRetainInstance(true);
     }
 
     @Nullable
@@ -43,7 +39,17 @@ public class FragmentSelectionTrain extends Fragment {
         TextView tv = (TextView)getActivity().findViewById(R.id.etSearchToStation);
         if (tv.getText().toString().equals("")) tvInformFragment.setText(ConstProject.INF_ENTER_TO);
 
-       /* if ((stationFrom.equals("") || stationTo.equals(""))){
+        return view;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        EditText etFrom = (EditText) getActivity().findViewById(R.id.etSearchFromStation);
+        EditText etTo = (EditText) getActivity().findViewById(R.id.etSearchToStation);
+        String stationFrom = etFrom.getText().toString();
+        String stationTo = etTo.getText().toString();
+        if (stationFrom.equals("") || stationTo.equals("")){
             pbLoad.setVisibility(View.GONE);
             tvInformFragment.setVisibility(View.VISIBLE);
             if (stationFrom.equals("")){
@@ -54,15 +60,8 @@ public class FragmentSelectionTrain extends Fragment {
             }
         }
         else {
-            tvInformFragment.setVisibility(View.GONE);
             pbLoad.setVisibility(View.VISIBLE);
-        }*/
-
-        return view;
-    }
-
-    public void changeMainView(String stationFrom, String stationTo){
-        this.stationFrom = stationFrom;
-        this.stationTo = stationTo;
+            tvInformFragment.setVisibility(View.GONE);
+        }
     }
 }

@@ -28,7 +28,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1">
-                <com.igordubrovin.trainstimetable.customView.CustomEditText
+                <EditText
                     android:inputType="text"
                     android:id="@+id/etSearchFromStation"
                     android:layout_height="wrap_content"
@@ -55,7 +55,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.25"
-                android:src="@drawable/search_black_27x27"
+                android:src="@drawable/ic_search_api_material"
                 android:contentDescription="@string/search"/>
         </LinearLayout>
 

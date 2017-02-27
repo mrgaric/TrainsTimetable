@@ -10,6 +10,8 @@ import android.widget.TextView;
 import com.igordubrovin.trainstimetable.R;
 import com.igordubrovin.trainstimetable.utils.ConstProject;
 
+import static com.igordubrovin.trainstimetable.utils.ConstProject.COLUMN_CODE_STATION;
+
 /**
  * Created by Игорь on 21.02.2017.
  */
@@ -17,6 +19,9 @@ import com.igordubrovin.trainstimetable.utils.ConstProject;
 public class AdapterSearchStation extends RecyclerView.Adapter<AdapterSearchStation.AssViewHolder> {
 
     private Cursor cursorItem = null;
+
+    private OnItemRecyclerViewClickListener itemClickListener;
+
 
     @Override
     public AssViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -40,7 +45,15 @@ public class AdapterSearchStation extends RecyclerView.Adapter<AdapterSearchStat
         this.notifyDataSetChanged();
     }
 
-    class AssViewHolder extends RecyclerView.ViewHolder{
+    public void setOnItemRecyclerViewClickListener(OnItemRecyclerViewClickListener clickListener){
+        itemClickListener = clickListener;
+    }
+
+    public interface OnItemRecyclerViewClickListener{
+        void onItemRecyclerViewClickListener(View view, int code);
+    }
+
+    class AssViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         TextView tvStation;
 
@@ -48,7 +61,13 @@ public class AdapterSearchStation extends RecyclerView.Adapter<AdapterSearchStat
             super(itemView);
 
             tvStation = (TextView)itemView.findViewById(R.id.tvSearchStation);
+            tvStation.setOnClickListener(this);
+        }
 
+        @Override
+        public void onClick(View v) {
+            cursorItem.moveToPosition(getAdapterPosition());
+            itemClickListener.onItemRecyclerViewClickListener(v, Integer.parseInt(cursorItem.getString(cursorItem.getColumnIndex(COLUMN_CODE_STATION))));
         }
     }
 }

@@ -8,58 +8,87 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.igordubrovin.trainstimetable.R;
 import com.igordubrovin.trainstimetable.adapters.AdapterSearchStation;
+import com.igordubrovin.trainstimetable.utils.ConstProject;
 import com.igordubrovin.trainstimetable.utils.CursorLoaderForDB;
 
-/**
- * Created by Игорь on 21.02.2017.
- */
+import static com.igordubrovin.trainstimetable.utils.ConstProject.PART_STATION_NAME;
 
 public class FragmentSearchStation extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
     RecyclerView rvSearchStation;
     AdapterSearchStation adapterSearchStation;
-    TextView tvHintSearch;
+    View view = null;
+    OnSelectStationListener listener;
+
+    public static FragmentSearchStation newInstance(String partStationName){
+        FragmentSearchStation fragmentSearchStation = new FragmentSearchStation();
+        Bundle args = new Bundle();
+        args.putString(ConstProject.PART_STATION_NAME, partStationName);
+        fragmentSearchStation.setArguments(args);
+        return fragmentSearchStation;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         adapterSearchStation = new AdapterSearchStation();
+        adapterSearchStation.setOnItemRecyclerViewClickListener(new AdapterSearchStation.OnItemRecyclerViewClickListener() {
+            @Override
+            public void onItemRecyclerViewClickListener(View view, int code) {
+                listener.onSelectStation(((TextView)view).getText().toString(), code);
+            }
+        });
+
+        searchStation(getArguments());
+
+        this.setRetainInstance(true);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_search_station, null);
+        if (view == null) {
+            view = inflater.inflate(R.layout.fragment_search_station, container, false);
+        }
 
         LinearLayoutManager linearLayoutManager;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             linearLayoutManager = new LinearLayoutManager(getContext());
-        }
-        else {
+        } else {
             linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
         }
 
-        rvSearchStation = (RecyclerView)view.findViewById(R.id.rvSearchStation);
+        rvSearchStation = (RecyclerView) view.findViewById(R.id.rvSearchStation);
         rvSearchStation.setLayoutManager(linearLayoutManager);
         rvSearchStation.setAdapter(adapterSearchStation);
-
-        tvHintSearch = (TextView)view.findViewById(R.id.tvHintSearch);
 
         return view;
     }
 
+    /*вспомогательные методы*/
     public void searchStation(Bundle bundle){
-        rvSearchStation.setVisibility(View.VISIBLE);
-        tvHintSearch.setVisibility(View.GONE);
         getActivity().getSupportLoaderManager().restartLoader(0, bundle, FragmentSearchStation.this);
     }
 
+    /*interface callback*/
+    public void setOnSelectStation(OnSelectStationListener l){
+        listener = l;
+    }
+
+    public interface OnSelectStationListener{
+        void onSelectStation(String station, int code);
+    }
+
+    /*implements methods*/
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoaderForDB(getContext(), args);
