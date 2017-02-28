@@ -22,7 +22,7 @@ import com.igordubrovin.trainstimetable.utils.ConstProject;
 public class MainActivity extends AppCompatActivity implements FragmentSearchStation.OnSelectStationListener {
 
     Toolbar toolbar;
-    EditText cetSearchFrom;
+    CustomEditText cetSearchFrom;
     CustomEditText cetSearchTo;
 
     ImageButton imgBtnSearchTrain;
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements FragmentSearchSta
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }*/
 
-        cetSearchFrom = (EditText) findViewById(R.id.etSearchFromStation);
+        cetSearchFrom = (CustomEditText) findViewById(R.id.etSearchFromStation);
         cetSearchTo = (CustomEditText) findViewById(R.id.etSearchToStation);
 
         imgBtnSearchTrain = (ImageButton) findViewById(R.id.imgBtnSearchTrain);
@@ -86,20 +86,19 @@ public class MainActivity extends AppCompatActivity implements FragmentSearchSta
     private View.OnClickListener onClickImgBtnSearch = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            clearFocusET();
+            hideKeyboard(v);
             Fragment fragment = getCurrentFragment(ConstProject.FRAGMENT_SEARCH_STATION);
             if (fragment != null && fragment.isVisible()) {
                 getSupportFragmentManager().popBackStack();
             }
-            if (cetSearchFrom.isFocused()) hideKeyboard(cetSearchFrom);
-            else if (cetSearchTo.isFocused()) hideKeyboard(cetSearchTo);
-            clearFocusET();
         }
     };
 
     TextView.OnEditorActionListener hideVirtualKeyboard = new TextView.OnEditorActionListener() {
         @Override
         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-            hideKeyboard((EditText) v);
+            hideKeyboard(v);
             return true;
         }
     };
@@ -108,7 +107,6 @@ public class MainActivity extends AppCompatActivity implements FragmentSearchSta
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
             String partStationName = ((EditText)v).getText().toString();
-
             if (hasFocus){
                 Fragment fragment = getCurrentFragment(ConstProject.FRAGMENT_SELECTION_TRAIN);
                 if (fragment != null && fragment.isVisible()) {
@@ -116,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements FragmentSearchSta
                     fragmentSearchStation.setOnSelectStation(MainActivity.this);
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragmentContainer, fragmentSearchStation, ConstProject.FRAGMENT_SEARCH_STATION)
-                            .addToBackStack(null)
+                            .addToBackStack(ConstProject.FRAGMENT_SELECTION_TRAIN)
                             .commit();
                 }
                 else searchInDB(partStationName);
@@ -147,9 +145,9 @@ public class MainActivity extends AppCompatActivity implements FragmentSearchSta
         return  getSupportFragmentManager().findFragmentByTag(fragmentTag);
     }
 
-    private void hideKeyboard(EditText cet){
+    private void hideKeyboard(View v){
         InputMethodManager imm =(InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(cet.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        imm.hideSoftInputFromWindow(v.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
     private void showKeyboard(EditText et){
@@ -181,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements FragmentSearchSta
             clearFocusET();
             if (cetSearchTo.getText().toString().equals("")){
                 cetSearchTo.requestFocus();
-                showKeyboard(cetSearchTo);
+              //  showKeyboard(cetSearchTo);
             }
         } else if (cetSearchTo.isFocused()){
             cetSearchTo.setText(station);
@@ -189,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements FragmentSearchSta
             clearFocusET();
             if (cetSearchFrom.getText().toString().equals("")){
                 cetSearchFrom.requestFocus();
-                showKeyboard(cetSearchFrom);
+              //  showKeyboard(cetSearchFrom);
             }
         }
     }
