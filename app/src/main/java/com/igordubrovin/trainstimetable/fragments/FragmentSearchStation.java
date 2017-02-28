@@ -8,20 +8,15 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.igordubrovin.trainstimetable.R;
 import com.igordubrovin.trainstimetable.adapters.AdapterSearchStation;
 import com.igordubrovin.trainstimetable.utils.ConstProject;
 import com.igordubrovin.trainstimetable.utils.CursorLoaderForDB;
-
-import static com.igordubrovin.trainstimetable.utils.ConstProject.PART_STATION_NAME;
 
 public class FragmentSearchStation extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
     RecyclerView rvSearchStation;
@@ -40,6 +35,7 @@ public class FragmentSearchStation extends Fragment implements LoaderManager.Loa
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         adapterSearchStation = new AdapterSearchStation();
         adapterSearchStation.setOnItemRecyclerViewClickListener(new AdapterSearchStation.OnItemRecyclerViewClickListener() {
             @Override

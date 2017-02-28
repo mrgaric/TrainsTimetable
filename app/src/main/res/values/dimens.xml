@@ -5,4 +5,6 @@
     <dimen name="dim_error_connection">20sp</dimen>
     <dimen name="dim_inform_text">20sp</dimen>
     <dimen name="margin_top_text">20dp</dimen>
+    <dimen name="text_size_item_search">22sp</dimen>
+    <dimen name="height_tv_item_search">40dp</dimen>
 </resources>

@@ -37,9 +37,9 @@ public class CustomEditText extends EditText {
 
     @Override
     public boolean onKeyPreIme(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK){
+        /*if (keyCode == KeyEvent.KEYCODE_BACK){
             clearFocus();
-        }
+        }*/
         return super.onKeyPreIme(keyCode, event);
     }
 
