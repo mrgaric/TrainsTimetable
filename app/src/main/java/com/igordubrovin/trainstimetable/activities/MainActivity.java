@@ -4,13 +4,10 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.igordubrovin.trainstimetable.R;
@@ -18,14 +15,19 @@ import com.igordubrovin.trainstimetable.customView.CustomEditText;
 import com.igordubrovin.trainstimetable.fragments.FragmentSearchStation;
 import com.igordubrovin.trainstimetable.fragments.FragmentSelectionTrain;
 import com.igordubrovin.trainstimetable.utils.ConstProject;
+import com.igordubrovin.trainstimetable.utils.CurrentDate;
 
 public class MainActivity extends AppCompatActivity implements FragmentSearchStation.OnSelectStationListener {
 
-    Toolbar toolbar;
-    CustomEditText cetSearchFrom;
-    CustomEditText cetSearchTo;
+    private CustomEditText cetSearchFrom;
+    private CustomEditText cetSearchTo;
 
-    ImageButton imgBtnSearchTrain;
+    private TextView tvCurrentDay;
+
+    private boolean cetFromIsClear;
+    private boolean cetToIsClear;
+
+  //  private ImageButton imgBtnSearchTrain;
 
     int codeStationFrom;
     int codeStationTo;
@@ -35,19 +37,32 @@ public class MainActivity extends AppCompatActivity implements FragmentSearchSta
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (savedInstanceState == null){
+            cetFromIsClear = true;
+            cetToIsClear = true;
+        } else {
+            cetFromIsClear = savedInstanceState.getBoolean("cetFromIsClear");
+            cetToIsClear = savedInstanceState.getBoolean("cetToIsClear");
+        }
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null)
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
         /*if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }*/
 
+        tvCurrentDay = (TextView) findViewById(R.id.tvCurrentDay);
+        updDate();
+
         cetSearchFrom = (CustomEditText) findViewById(R.id.etSearchFromStation);
         cetSearchTo = (CustomEditText) findViewById(R.id.etSearchToStation);
 
-        imgBtnSearchTrain = (ImageButton) findViewById(R.id.imgBtnSearchTrain);
+     //   imgBtnSearchTrain = (ImageButton) findViewById(R.id.imgBtnSearchTrain);
 
-        imgBtnSearchTrain.setOnClickListener(onClickImgBtnSearch);
+      //  imgBtnSearchTrain.setOnClickListener(onClickImgBtnSearch);
 
         cetSearchFrom.setOnEditorActionListener(hideVirtualKeyboard);
         cetSearchTo.setOnEditorActionListener(hideVirtualKeyboard);
@@ -55,8 +70,8 @@ public class MainActivity extends AppCompatActivity implements FragmentSearchSta
         cetSearchFrom.setOnFocusChangeListener(onFocusChangeCetReplaceFragment);
         cetSearchTo.setOnFocusChangeListener(onFocusChangeCetReplaceFragment);
 
-        cetSearchFrom.addTextChangedListener(textWatcher);
-        cetSearchTo.addTextChangedListener(textWatcher);
+        cetSearchFrom.setOnTextChangedListener(textChangedListener);
+        cetSearchTo.setOnTextChangedListener(textChangedListener);
 
         Fragment fragment = getCurrentFragment(ConstProject.FRAGMENT_SELECTION_TRAIN);
 
@@ -76,6 +91,13 @@ public class MainActivity extends AppCompatActivity implements FragmentSearchSta
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("cetFromIsClear", cetFromIsClear);
+        outState.putBoolean("cetToIsClear", cetToIsClear);
+    }
+
+    @Override
     public void onBackPressed() {
         super.onBackPressed();
         clearFocusET();
@@ -83,7 +105,22 @@ public class MainActivity extends AppCompatActivity implements FragmentSearchSta
 
     /*View callback*/
 
-    private View.OnClickListener onClickImgBtnSearch = new View.OnClickListener() {
+    private CustomEditText.OnTextChangedListener textChangedListener = new CustomEditText.OnTextChangedListener() {
+        @Override
+        public void onTextChangedListener(View v, String s) {
+            searchInDB(s);
+            switch (v.getId()){
+                case R.id.etSearchFromStation:
+                        cetFromIsClear = s.equals("");
+                    break;
+                case R.id.etSearchToStation:
+                        cetToIsClear = s.equals("");
+                    break;
+            }
+        }
+    };
+
+    /*private View.OnClickListener onClickImgBtnSearch = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             clearFocusET();
@@ -93,9 +130,9 @@ public class MainActivity extends AppCompatActivity implements FragmentSearchSta
                 getSupportFragmentManager().popBackStack();
             }
         }
-    };
+    };*/
 
-    TextView.OnEditorActionListener hideVirtualKeyboard = new TextView.OnEditorActionListener() {
+    private TextView.OnEditorActionListener hideVirtualKeyboard = new TextView.OnEditorActionListener() {
         @Override
         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
             hideKeyboard(v);
@@ -119,22 +156,6 @@ public class MainActivity extends AppCompatActivity implements FragmentSearchSta
                 }
                 else searchInDB(partStationName);
             }
-        }
-    };
-
-    private TextWatcher textWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            searchInDB(s.toString());
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
 
         }
     };
@@ -150,10 +171,10 @@ public class MainActivity extends AppCompatActivity implements FragmentSearchSta
         imm.hideSoftInputFromWindow(v.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
-    private void showKeyboard(EditText et){
+    /*private void showKeyboard(EditText et){
         InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
         imm.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT);
-    }
+    }*/
 
     private void clearFocusET(){
         cetSearchFrom.clearFocus();
@@ -169,26 +190,49 @@ public class MainActivity extends AppCompatActivity implements FragmentSearchSta
         }
     }
 
+    private void updDate(){
+        tvCurrentDay.setText(CurrentDate.getCurrentData());
+    }
+
+    public boolean getCetFromIsClear(){
+        return cetFromIsClear;
+    }
+
+    public boolean getCetToIsClear(){
+        return cetToIsClear;
+    }
+
     /*Fragments callback*/
 
     @Override
-    public void onSelectStation(String station, int code) {
-        if (cetSearchFrom.isFocused()){
+    public void onSelectStation(View view, String station, int code) {
+        boolean cetFromIsFocused = cetSearchFrom.isFocused();
+        boolean cetToIsFocused = cetSearchTo.isFocused();
+
+        if (cetFromIsFocused){
             cetSearchFrom.setText(station);
             codeStationFrom = code;
             clearFocusET();
+            cetFromIsFocused = false;
             if (cetSearchTo.getText().toString().equals("")){
                 cetSearchTo.requestFocus();
+                cetToIsFocused = true;
               //  showKeyboard(cetSearchTo);
             }
-        } else if (cetSearchTo.isFocused()){
+        } else if (cetToIsFocused){
             cetSearchTo.setText(station);
             codeStationTo = code;
             clearFocusET();
+            cetToIsFocused = false;
             if (cetSearchFrom.getText().toString().equals("")){
                 cetSearchFrom.requestFocus();
+                cetFromIsFocused = true;
               //  showKeyboard(cetSearchFrom);
             }
+        }
+        if (!cetFromIsFocused && !cetToIsFocused){
+            hideKeyboard(view);
+            getSupportFragmentManager().popBackStack();
         }
     }
 }

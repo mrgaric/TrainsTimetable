@@ -40,7 +40,7 @@ public class FragmentSearchStation extends Fragment implements LoaderManager.Loa
         adapterSearchStation.setOnItemRecyclerViewClickListener(new AdapterSearchStation.OnItemRecyclerViewClickListener() {
             @Override
             public void onItemRecyclerViewClickListener(View view, int code) {
-                listener.onSelectStation(((TextView)view).getText().toString(), code);
+                listener.onSelectStation(view, ((TextView)view).getText().toString(), code);
             }
         });
 
@@ -81,7 +81,7 @@ public class FragmentSearchStation extends Fragment implements LoaderManager.Loa
     }
 
     public interface OnSelectStationListener{
-        void onSelectStation(String station, int code);
+        void onSelectStation(View v, String station, int code);
     }
 
     /*implements methods*/

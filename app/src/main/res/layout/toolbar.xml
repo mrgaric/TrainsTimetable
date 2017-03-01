@@ -8,23 +8,80 @@
     <android.support.design.widget.CollapsingToolbarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_scrollFlags="scroll|exitUntilCollapsed"
-        app:contentScrim="?attr/colorPrimary">
+        app:contentScrim="?attr/colorPrimary"
+        app:layout_scrollFlags="scroll|snap">
 
-        <ImageView
-            android:id="@+id/iv"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_collapseMode="parallax">
+            <TextView
+                android:id="@+id/tvCurrentDay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textSize="30sp"
+                />
+        </LinearLayout>
+
+    </android.support.design.widget.CollapsingToolbarLayout>
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/train"
-            android:contentDescription="@string/app_name"
-            app:layout_collapseMode="parallax"
-            android:scaleType="fitStart"/>
+            android:orientation="horizontal"
+            android:baselineAligned="false"
+            android:id="@+id/linearInformationStation"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginStart="@dimen/activity_vertical_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginLeft="@dimen/activity_vertical_margin">
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                >
+                <com.igordubrovin.trainstimetable.customView.CustomEditText
+                    android:inputType="text"
+                    android:id="@+id/etSearchFromStation"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:hint="@string/station_from"
+                    android:maxLines="1"
+                    android:imeOptions = "actionSearch"/>
+            </android.support.design.widget.TextInputLayout>
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+                <com.igordubrovin.trainstimetable.customView.CustomEditText
+                    android:inputType="text"
+                    android:id="@+id/etSearchToStation"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:hint="@string/station_to"
+                    android:maxLines="1"
+                    android:imeOptions = "actionSearch"/>
+            </android.support.design.widget.TextInputLayout>
+            <!--         <ImageButton
+                         android:id="@+id/imgBtnSearchTrain"
+                         android:layout_width="0dp"
+                         android:layout_height="match_parent"
+                         android:layout_weight="0.25"
+                         app:srcCompat="@drawable/ic_search_api_material"
+                         android:contentDescription="@string/search"/>       -->
+        </LinearLayout>
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:layout_collapseMode="pin"
-            />
-    </android.support.design.widget.CollapsingToolbarLayout>
+    </android.support.v7.widget.Toolbar>
+
+    <android.support.design.widget.TabLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:tabGravity="fill"
+        app:tabMode="fixed" />
 </android.support.design.widget.AppBarLayout>

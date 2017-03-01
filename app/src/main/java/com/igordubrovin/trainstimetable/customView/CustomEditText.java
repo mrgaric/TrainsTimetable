@@ -8,6 +8,7 @@ import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.EditText;
 
 import com.igordubrovin.trainstimetable.R;
@@ -17,6 +18,8 @@ import com.igordubrovin.trainstimetable.R;
  */
 
 public class CustomEditText extends EditText {
+
+    private OnTextChangedListener listener;
 
     public CustomEditText(Context context) {
         super(context);
@@ -50,6 +53,7 @@ public class CustomEditText extends EditText {
             this.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_clear_material, 0);
         else
             this.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
+        if (listener != null) listener.onTextChangedListener(this, text.toString());
     }
 
     @Override
@@ -67,10 +71,20 @@ public class CustomEditText extends EditText {
                         this.getHeight() - this.getPaddingBottom() + fuzz);
                 if (r.contains(x, y)){
                     this.setText("");
+                    this.requestFocus();
                     this.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
                 }
             }
         }
         return super.onTouchEvent(event);
     }
+
+    public void setOnTextChangedListener(OnTextChangedListener l){
+        listener = l;
+    }
+
+    public interface OnTextChangedListener{
+        void onTextChangedListener(View v, String s);
+    }
+
 }

@@ -9,18 +9,29 @@
         android:layout_height="match_parent"
         android:visibility="gone"/>
 
-    <TextView
-        android:id="@+id/tvInformFragment"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:textSize="@dimen/dim_error_connection"
-        android:text="@string/enter_station_from"/>
+        android:id="@+id/svTvInfo">
+        <TextView
+            android:id="@+id/tvInformFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="@dimen/dim_error_connection"
+            android:text="@string/enter_station_from"
+            android:layout_marginTop="@dimen/margin_top_text"/>
+    </android.support.v4.widget.NestedScrollView>
 
-    <ProgressBar
-        android:id="@+id/pbLoad"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone"/>
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/svPbInfo"
+        android:visibility="gone">
+        <ProgressBar
+            android:id="@+id/pbLoad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"/>
+    </android.support.v4.widget.NestedScrollView>
 </FrameLayout>
