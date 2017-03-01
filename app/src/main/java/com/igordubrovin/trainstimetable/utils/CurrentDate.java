@@ -15,7 +15,7 @@ public class CurrentDate {
         int month = calendar.get(Calendar.MONTH) + 1;
         int year = calendar.get(Calendar.YEAR);
         int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-        date = String.format("%02d", dayMonth) + "." + String.format("%02d", month) + "." + year + "/" + getDayOfWeek(dayOfWeek);
+        date = String.format("%02d", dayMonth) + "." + String.format("%02d", month) + "." + year + " " + getDayOfWeek(dayOfWeek);
         return date;
     }
 
