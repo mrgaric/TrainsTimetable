@@ -4,7 +4,6 @@ package com.igordubrovin.trainstimetable.fragments;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.NestedScrollView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,18 +11,15 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.igordubrovin.trainstimetable.R;
-import com.igordubrovin.trainstimetable.activities.MainActivity;
-import com.igordubrovin.trainstimetable.utils.ConstProject;
 
 /**
  * Created by Игорь on 21.02.2017.
  */
 
 public class FragmentSelectionTrain extends Fragment {
-    TextView tvInformFragment;
+
     ProgressBar pbLoad;
-    NestedScrollView svTvInfo;
-    NestedScrollView svPbInfo;
+    TextView tvInformFragment;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -34,19 +30,31 @@ public class FragmentSelectionTrain extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_selection_train, container, false);
+
         tvInformFragment = (TextView)view.findViewById(R.id.tvInformFragment);
         pbLoad = (ProgressBar)view.findViewById(R.id.pbLoad);
-        svTvInfo = (NestedScrollView) view.findViewById(R.id.svTvInfo);
-        svPbInfo = (NestedScrollView) view.findViewById(R.id.svPbInfo);
 
-        TextView tv = (TextView)getActivity().findViewById(R.id.etSearchToStation);
-        if (tv.getText().toString().equals("")) tvInformFragment.setText(ConstProject.INF_ENTER_TO);
+        pbLoad.setVisibility(View.GONE);
+        tvInformFragment.setVisibility(View.VISIBLE);
 
         return view;
     }
 
-    @Override
+    public void immediate(){
+
+    }
+
+    public void forDay(){
+
+    }
+
+    public void choiceDate(){
+
+    }
+
+    /*@Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
@@ -65,5 +73,5 @@ public class FragmentSelectionTrain extends Fragment {
                 svPbInfo.setVisibility(View.VISIBLE);
             }
         }
-    }
+    }*/
 }

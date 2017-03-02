@@ -30,80 +30,37 @@
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.CollapsingToolbarLayout>
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:baselineAligned="false"
-            android:id="@+id/linearInformationStation"
-            android:layout_marginTop="@dimen/activity_horizontal_margin"
-            android:layout_marginEnd="@dimen/activity_vertical_margin"
-            android:layout_marginStart="@dimen/activity_vertical_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:layout_marginLeft="@dimen/activity_vertical_margin">
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                >
-                <com.igordubrovin.trainstimetable.customView.CustomEditText
-                    android:inputType="text"
-                    android:id="@+id/etSearchFromStation"
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:hint="@string/station_from"
-                    android:maxLines="1"
-                    android:imeOptions = "actionSearch"/>
-            </android.support.design.widget.TextInputLayout>
-            <View
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:background="@color/colorPrimaryDark"
-                android:layout_weight="0.01"
-                android:layout_marginRight="2dp"
-                android:layout_marginLeft="2dp"
-                android:layout_marginTop="15dp"
-                android:layout_marginBottom="10dp"/>
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1">
-                <com.igordubrovin.trainstimetable.customView.CustomEditText
-                    android:inputType="text"
-                    android:id="@+id/etSearchToStation"
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:hint="@string/station_to"
-                    android:maxLines="1"
-                    android:imeOptions = "actionSearch"/>
-            </android.support.design.widget.TextInputLayout>
-            <!--         <ImageButton
-                         android:id="@+id/imgBtnSearchTrain"
-                         android:layout_width="0dp"
-                         android:layout_height="match_parent"
-                         android:layout_weight="0.25"
-                         app:srcCompat="@drawable/ic_search_api_material"
-                         android:contentDescription="@string/search"/>       -->
-            <View
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:background="@color/colorPrimaryDark"
-                android:layout_weight="0.01"
-                android:layout_marginRight="2dp"
-                android:layout_marginLeft="2dp"
-                android:layout_marginTop="15dp"
-                android:layout_marginBottom="10dp"/>
-            <ImageView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.3"
-                app:srcCompat="@drawable/star"
-                android:layout_gravity="center"/>
-        </LinearLayout>
+            android:id="@+id/toolbarItemContainer">
+        </FrameLayout>
 
-    <android.support.design.widget.TabLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:tabGravity="fill"
-        app:tabMode="fixed" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/llSelection">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:hint="ближайшие"
+            android:gravity="center"
+            android:id="@+id/tvImmediate"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:hint="на день"
+            android:gravity="center"
+            android:id="@+id/tvForDay"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:hint="выбор даты"
+            android:gravity="center"
+            android:id="@+id/tvChoiceDate"/>
+    </LinearLayout>
 </android.support.design.widget.AppBarLayout>

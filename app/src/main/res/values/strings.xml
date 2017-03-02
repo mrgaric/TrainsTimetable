@@ -5,4 +5,10 @@
     <string name="search">Поиск</string>
     <string name="hint_search">Начните вводить название станции</string>
     <string name="enter_station_from">Введите станцию отправления</string>
+
+    <string-array name="selectionFragment">
+        <item>Расписание</item>
+        <item>Избранное</item>
+        <item>Выбор маршрута</item>
+    </string-array>
 </resources>

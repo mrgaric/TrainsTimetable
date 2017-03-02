@@ -3,4 +3,12 @@
     <color name="colorPrimary">#00838F</color>
     <color name="colorPrimaryDark">#006064</color>
     <color name="colorAccent">#ffab40</color>
+    <color name="colorBackground">#263238</color>
+
+    <color name="drawer_background_color">#37474f</color>
+    <color name="drawer_item_selected_color">#455a64</color>
+    <color name="drawer_text_color">#FFFFFF</color>
+    <color name="drawer_divider_color">#455A64</color>
+    <color name="window_background_color">#37474F</color>
+    <color name="material_background_color">#455A64</color>
 </resources>

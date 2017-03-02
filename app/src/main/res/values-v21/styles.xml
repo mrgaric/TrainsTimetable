@@ -8,5 +8,12 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:navigationBarColor">?android:attr/colorPrimaryDark</item>
         <item name="android:colorButtonNormal">@color/colorAccent</item>
+        <item name="android:colorBackground">@color/colorBackground</item>
+
+        <item name="material_drawer_background">@color/drawer_background_color</item>
+        <item name="material_drawer_selected">@color/drawer_item_selected_color</item>
+        <item name="material_drawer_primary_text">@color/drawer_text_color</item>
+        <item name="material_drawer_selected_text">@color/colorAccent</item>
+
     </style>
 </resources>

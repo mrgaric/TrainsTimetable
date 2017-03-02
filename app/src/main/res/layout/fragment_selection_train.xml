@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rvSelection"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"/>
+        >
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rvSelection"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
 
-    <android.support.v4.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/svTvInfo">
         <TextView
             android:id="@+id/tvInformFragment"
             android:layout_width="match_parent"
@@ -21,17 +23,14 @@
             android:textSize="@dimen/dim_error_connection"
             android:text="@string/enter_station_from"
             android:layout_marginTop="@dimen/margin_top_text"/>
-    </android.support.v4.widget.NestedScrollView>
 
-    <android.support.v4.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/svPbInfo"
-        android:visibility="gone">
         <ProgressBar
             android:id="@+id/pbLoad"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"/>
-    </android.support.v4.widget.NestedScrollView>
-</FrameLayout>
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/margin_top_text"
+            />
+
+    </FrameLayout>
+</android.support.design.widget.CoordinatorLayout>

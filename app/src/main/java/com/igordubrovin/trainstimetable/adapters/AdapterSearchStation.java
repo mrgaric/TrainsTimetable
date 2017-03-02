@@ -50,7 +50,7 @@ public class AdapterSearchStation extends RecyclerView.Adapter<AdapterSearchStat
     }
 
     public interface OnItemRecyclerViewClickListener{
-        void onItemRecyclerViewClickListener(View view, int code);
+        void onItemRecyclerViewClickListener(String s, int code);
     }
 
     class AssViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -67,7 +67,7 @@ public class AdapterSearchStation extends RecyclerView.Adapter<AdapterSearchStat
         @Override
         public void onClick(View v) {
             cursorItem.moveToPosition(getAdapterPosition());
-            itemClickListener.onItemRecyclerViewClickListener(v, Integer.parseInt(cursorItem.getString(cursorItem.getColumnIndex(COLUMN_CODE_STATION))));
+            itemClickListener.onItemRecyclerViewClickListener(((TextView)v).getText().toString(), Integer.parseInt(cursorItem.getString(cursorItem.getColumnIndex(COLUMN_CODE_STATION))));
         }
     }
 }

@@ -13,6 +13,8 @@ public class ConstProject {
     public static final String ERROR_CONNECTION_INTERNET = "Ошибка подключения. Проверьте соединение с интернетом";
     public static final String FRAGMENT_SEARCH_STATION = "fragmentSearchStation";
     public static final String FRAGMENT_SELECTION_TRAIN = "fragmentSelectionTrain";
+    public static final String STATION_FROM = "stationFrom";
+    public static final String STATION_TO = "stationTo";
 
 
     //база данных
