@@ -37,6 +37,8 @@ public class MainActivity extends AppCompatActivity{
     private TextView tvForDay;
     private TextView tvChoiceDate;
 
+    private FragmentSelectionTrain fragmentSelectionTrain;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +53,10 @@ public class MainActivity extends AppCompatActivity{
         tvImmediate = (TextView) findViewById(R.id.tvImmediate);
         tvForDay = (TextView) findViewById(R.id.tvForDay);
         tvChoiceDate = (TextView) findViewById(R.id.tvChoiceDate);
+
+        tvImmediate.setOnClickListener(clickSelectTimetable);
+        tvForDay.setOnClickListener(clickSelectTimetable);
+        tvChoiceDate.setOnClickListener(clickSelectTimetable);
 
         containerItemToolbar = (FrameLayout) findViewById(R.id.toolbarItemContainer);
         getLayoutInflater().inflate(R.layout.toolbar_item_1, containerItemToolbar, true);
@@ -91,7 +97,7 @@ public class MainActivity extends AppCompatActivity{
         Fragment fragment = getCurrentFragment(ConstProject.FRAGMENT_SELECTION_TRAIN);
 
         if (fragment == null) {
-            FragmentSelectionTrain fragmentSelectionTrain = new FragmentSelectionTrain();
+            fragmentSelectionTrain = new FragmentSelectionTrain();
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragmentContainer, fragmentSelectionTrain, ConstProject.FRAGMENT_SELECTION_TRAIN)
                     .commit();
@@ -143,6 +149,23 @@ public class MainActivity extends AppCompatActivity{
     private Fragment getCurrentFragment(String fragmentTag){
         return  getSupportFragmentManager().findFragmentByTag(fragmentTag);
     }
+
+    View.OnClickListener clickSelectTimetable = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()){
+                case R.id.tvImmediate:
+                    fragmentSelectionTrain.immediate();
+                    break;
+                case R.id.tvForDay:
+                    fragmentSelectionTrain.forDay();
+                    break;
+                case R.id.tvChoiceDate:
+                    fragmentSelectionTrain.choiceDate();
+                    break;
+            }
+        }
+    };
 
     @Override
     public void onBackPressed() {
