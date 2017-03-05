@@ -18,16 +18,17 @@
         android:hint="выберите маршрут"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
     <View
-        android:layout_width="0dp"
+        android:layout_width="1dp"
         android:layout_height="match_parent"
         android:background="@color/colorPrimaryDark"
-        android:layout_weight="0.01"
         android:layout_marginRight="2dp"
         android:layout_marginLeft="2dp" />
     <ImageView
+        android:id="@+id/ivLiked"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.1"
-        app:srcCompat="@drawable/star"
-        android:layout_gravity="center"/>
+        app:srcCompat="@drawable/star_not_liked"
+        android:layout_gravity="center"
+        android:contentDescription="sad" />
 </LinearLayout>

@@ -2,15 +2,20 @@ package com.igordubrovin.trainstimetable.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.BaseTransientBottomBar;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.igordubrovin.trainstimetable.R;
+import com.igordubrovin.trainstimetable.dialogs.DateDialogFragment;
 import com.igordubrovin.trainstimetable.fragments.FragmentSelectionTrain;
 import com.igordubrovin.trainstimetable.utils.ConstProject;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -36,6 +41,9 @@ public class MainActivity extends AppCompatActivity{
     private TextView tvImmediate;
     private TextView tvForDay;
     private TextView tvChoiceDate;
+    private ImageView ivLiked;
+
+    private boolean liked;
 
     private FragmentSelectionTrain fragmentSelectionTrain;
 
@@ -48,11 +56,13 @@ public class MainActivity extends AppCompatActivity{
         setSupportActionBar(toolbar);
 
         llSelection = (LinearLayout)findViewById(R.id.llSelection);
-        llSelection.setVisibility(View.GONE);
+    //    llSelection.setVisibility(View.GONE);
+        llSelection.setVisibility(View.VISIBLE);
 
         tvImmediate = (TextView) findViewById(R.id.tvImmediate);
         tvForDay = (TextView) findViewById(R.id.tvForDay);
         tvChoiceDate = (TextView) findViewById(R.id.tvChoiceDate);
+        setColorEditText(tvImmediate, tvForDay, tvChoiceDate);
 
         tvImmediate.setOnClickListener(clickSelectTimetable);
         tvForDay.setOnClickListener(clickSelectTimetable);
@@ -63,6 +73,9 @@ public class MainActivity extends AppCompatActivity{
 
         tvSearchStation = (TextView) containerItemToolbar.findViewById(R.id.tvSearchStation);
         tvSearchStation.setOnClickListener(tvSearchStationClick);
+
+        ivLiked = (ImageView) findViewById(R.id.ivLiked);
+        ivLiked.setOnClickListener(clickIvLiked);
 
         selectFragment = getResources().getStringArray(R.array.selectionFragment);
 
@@ -112,9 +125,19 @@ public class MainActivity extends AppCompatActivity{
                 stationFrom = data.getStringExtra(ConstProject.STATION_FROM);
                 stationTo = data.getStringExtra(ConstProject.STATION_TO);
                 tvSearchStation.setText(stationFrom + " - " + stationTo);
+              //  llSelection.setVisibility(View.VISIBLE);
             }
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        if(drawer.isDrawerOpen()){
+            drawer.closeDrawer();
+        }else super.onBackPressed();
+    }
+
+    //View listener
 
     Drawer.OnDrawerItemClickListener drawerItemClickListener = new Drawer.OnDrawerItemClickListener() {
         @Override
@@ -156,21 +179,58 @@ public class MainActivity extends AppCompatActivity{
             switch (v.getId()){
                 case R.id.tvImmediate:
                     fragmentSelectionTrain.immediate();
+                    setColorEditText(tvImmediate, tvForDay, tvChoiceDate);
                     break;
                 case R.id.tvForDay:
                     fragmentSelectionTrain.forDay();
+                    setColorEditText(tvForDay, tvImmediate, tvChoiceDate);
                     break;
                 case R.id.tvChoiceDate:
-                    fragmentSelectionTrain.choiceDate();
+                    setColorEditText(tvChoiceDate, tvForDay, tvImmediate);
+                    DateDialogFragment dateDialogFragment = new DateDialogFragment();
+                    dateDialogFragment.setActionListener(listenerDateDialog);
+                    dateDialogFragment.show(getSupportFragmentManager(), "dateDialog");
                     break;
             }
         }
     };
 
-    @Override
-    public void onBackPressed() {
-        if(drawer.isDrawerOpen()){
-            drawer.closeDrawer();
-        }else super.onBackPressed();
+    View.OnClickListener clickIvLiked = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (liked){
+                ivLiked.setImageResource(R.drawable.star_not_liked);
+                liked = false;
+            }
+            else {
+                ivLiked.setImageResource(R.drawable.star_liked);
+                liked = true;
+            }
+        }
+    };
+
+    // callback fragment
+
+    DateDialogFragment.ActionListener listenerDateDialog = new DateDialogFragment.ActionListener() {
+        @Override
+        public void clickPositiveButton(int year, int month, int dayOfMonth) {
+            fragmentSelectionTrain.choiceDate();
+        }
+
+        @Override
+        public void cancelWithoutDate() {
+            Snackbar snackbar;
+            Snackbar.make(getWindow().getDecorView().getRootView(), "Дата не выбрана", BaseTransientBottomBar.LENGTH_SHORT).show();
+            tvImmediate.callOnClick();
+        }
+    };
+
+    //вспомогательные методы
+
+    private void setColorEditText(TextView tvChoice, TextView tvNonChoice1, TextView tvNonChoice2){
+        tvChoice.setHintTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent));
+        tvNonChoice1.setHintTextColor(ContextCompat.getColor(getApplicationContext(), R.color.secondary_text_material_dark));
+        tvNonChoice2.setHintTextColor(ContextCompat.getColor(getApplicationContext(), R.color.secondary_text_material_dark));
     }
+
 }

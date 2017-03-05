@@ -15,7 +15,7 @@ import com.igordubrovin.trainstimetable.R;
 import com.igordubrovin.trainstimetable.adapters.AdapterSearchStation;
 import com.igordubrovin.trainstimetable.customView.CustomEditText;
 import com.igordubrovin.trainstimetable.utils.ConstProject;
-import com.igordubrovin.trainstimetable.utils.CursorLoaderForDB;
+import com.igordubrovin.trainstimetable.utils.CLForSearchStationDB;
 
 /**
  * Created by Игорь on 02.03.2017.
@@ -148,7 +148,7 @@ public class ActivitySearchStation extends AppCompatActivity implements LoaderMa
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoaderForDB(getApplicationContext(), args);
+        return new CLForSearchStationDB(getApplicationContext(), args);
     }
 
     @Override

@@ -9,11 +9,11 @@ import android.support.v4.content.CursorLoader;
  * Created by Игорь on 21.02.2017.
  */
 
-public class CursorLoaderForDB extends CursorLoader{
+public class CLForSearchStationDB extends CursorLoader{
 
     private Bundle bundle;
 
-    public CursorLoaderForDB(Context context, Bundle bundle) {
+    public CLForSearchStationDB(Context context, Bundle bundle) {
         super(context);
         this.bundle = bundle;
     }

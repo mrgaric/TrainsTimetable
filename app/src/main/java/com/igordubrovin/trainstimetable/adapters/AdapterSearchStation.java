@@ -59,7 +59,6 @@ public class AdapterSearchStation extends RecyclerView.Adapter<AdapterSearchStat
 
         AssViewHolder(View itemView) {
             super(itemView);
-
             tvStation = (TextView)itemView.findViewById(R.id.tvSearchStation);
             tvStation.setOnClickListener(this);
         }
