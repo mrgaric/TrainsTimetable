@@ -139,7 +139,22 @@ public class ContentProviderLikedDB extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return 0;
+        switch (uriMatcher.match(uri)){
+            case LIKED_ROUTES_ID_URI:
+                String id = uri.getLastPathSegment();
+                if (selection.isEmpty()){
+                    selection = LIKED_DB_COLUMN_NAME_ID + " = " + id;
+                }else {
+                    selection = selection + " AND " + LIKED_DB_COLUMN_NAME_ID + " = " + id;
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Error Uri:" + uri);
+        }
+        db = mLikedDB.getWritableDatabase();
+        int cnt = db.delete(LIKED_DB_TABLE_NAME, selection, selectionArgs);
+        getContext().getContentResolver().notifyChange(uri, null);
+        return cnt;
     }
 
     @Override

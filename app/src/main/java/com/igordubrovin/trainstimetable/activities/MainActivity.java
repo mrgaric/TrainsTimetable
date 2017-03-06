@@ -232,5 +232,4 @@ public class MainActivity extends AppCompatActivity{
         tvNonChoice1.setHintTextColor(ContextCompat.getColor(getApplicationContext(), R.color.secondary_text_material_dark));
         tvNonChoice2.setHintTextColor(ContextCompat.getColor(getApplicationContext(), R.color.secondary_text_material_dark));
     }
-
 }
