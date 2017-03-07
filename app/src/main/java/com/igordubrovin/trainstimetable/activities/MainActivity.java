@@ -1,11 +1,16 @@
 package com.igordubrovin.trainstimetable.activities;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -18,6 +23,7 @@ import com.igordubrovin.trainstimetable.R;
 import com.igordubrovin.trainstimetable.dialogs.DateDialogFragment;
 import com.igordubrovin.trainstimetable.fragments.FragmentSelectionTrain;
 import com.igordubrovin.trainstimetable.utils.ConstProject;
+import com.igordubrovin.trainstimetable.utils.ContentProviderLikedDB;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -25,7 +31,7 @@ import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
     private Drawer drawer;
     private String[] selectFragment;
@@ -126,6 +132,7 @@ public class MainActivity extends AppCompatActivity{
                 stationTo = data.getStringExtra(ConstProject.STATION_TO);
                 tvSearchStation.setText(stationFrom + " - " + stationTo);
               //  llSelection.setVisibility(View.VISIBLE);
+                getSupportLoaderManager().restartLoader(0, null, this);
             }
         }
     }
@@ -199,10 +206,17 @@ public class MainActivity extends AppCompatActivity{
         @Override
         public void onClick(View v) {
             if (liked){
+                String selection = ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_STATION_FROM + " = ? AND " + ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_STATION_TO + " = ?";
+                String[] selectionArgs = new String[]{stationFrom, stationTo};
+                getContentResolver().delete(ContentProviderLikedDB.URI_LIKED_ROUTES_CONTENT, selection, selectionArgs);
                 ivLiked.setImageResource(R.drawable.star_not_liked);
                 liked = false;
             }
             else {
+                ContentValues cv = new ContentValues();
+                cv.put(ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_STATION_FROM, stationFrom);
+                cv.put(ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_STATION_TO, stationTo);
+                getContentResolver().insert(ContentProviderLikedDB.URI_LIKED_ROUTES_CONTENT, cv);
                 ivLiked.setImageResource(R.drawable.star_liked);
                 liked = true;
             }
@@ -231,5 +245,35 @@ public class MainActivity extends AppCompatActivity{
         tvChoice.setHintTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent));
         tvNonChoice1.setHintTextColor(ContextCompat.getColor(getApplicationContext(), R.color.secondary_text_material_dark));
         tvNonChoice2.setHintTextColor(ContextCompat.getColor(getApplicationContext(), R.color.secondary_text_material_dark));
+    }
+
+    private void onLoadLikedDBEn(Cursor cursor){
+        if (cursor.getColumnCount() != 0){
+            ivLiked.setImageResource(R.drawable.star_liked);
+        }
+    }
+
+    //LoaderCallback
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String selection = ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_STATION_FROM + " = ? AND " + ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_STATION_TO + " = ?";
+        String[] selectionArgs = new String[]{stationFrom, stationTo};
+        return new CursorLoader(getApplicationContext(),
+                ContentProviderLikedDB.URI_LIKED_ROUTES_CONTENT,
+                null,
+                selection,
+                selectionArgs,
+                null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        onLoadLikedDBEn(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 }

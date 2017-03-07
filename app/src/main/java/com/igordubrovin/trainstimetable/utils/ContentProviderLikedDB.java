@@ -25,8 +25,8 @@ public class ContentProviderLikedDB extends ContentProvider {
     private static final int LIKED_DB_VERSION = 1;
     //поля
     private static final String LIKED_DB_COLUMN_NAME_ID = "_id";
-    private static final String LIKED_DB_COLUMN_NAME_STATION_FROM = "StationFrom";
-    private static final String LIKED_DB_COLUMN_NAME_STATION_TO = "StationTo";
+    public static final String LIKED_DB_COLUMN_NAME_STATION_FROM = "StationFrom";
+    public static final String LIKED_DB_COLUMN_NAME_STATION_TO = "StationTo";
     //создание таблицы
     private static final String LIKED_DB_CREATE_TABLE = "create table " + LIKED_DB_TABLE_NAME + " ("
             + LIKED_DB_COLUMN_NAME_ID + " integer primary key autoincrement,"
@@ -43,7 +43,7 @@ public class ContentProviderLikedDB extends ContentProvider {
     static final String PATH_LIKED_ROUTES = "LikedRoutes";
 
     //uri
-    static final Uri URI_LIKED_ROUTES_CONTENT = Uri.parse(SCHEME + AUTHORITY_LIKED_DB + "/" + PATH_LIKED_ROUTES);
+    public static final Uri URI_LIKED_ROUTES_CONTENT = Uri.parse(SCHEME + AUTHORITY_LIKED_DB + "/" + PATH_LIKED_ROUTES);
 
     //набор строк
     static final String LIKED_ROUTES_CONTENT_TYPE = "vnd.android.cursor.dir/vnd."
