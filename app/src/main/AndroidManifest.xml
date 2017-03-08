@@ -17,5 +17,9 @@
         </activity>
         <activity android:name=".activities.ActivitySearchStation">
         </activity>
+        <provider
+            android:authorities="com.igordubrovin.providers.LikedDB"
+            android:name=".utils.ContentProviderLikedDB"
+            android:exported="false" />
     </application>
 </manifest>

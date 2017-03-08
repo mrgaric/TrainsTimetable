@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 /**
  * Created by Игорь on 05.03.2017.
@@ -84,14 +85,14 @@ public class ContentProviderLikedDB extends ContentProvider {
         switch (uriMatcher.match(uri)){
             case LIKED_ROUTES_URI:
                 //проверка на сортировку
-                if (sortOrder.isEmpty()){
+                if (TextUtils.isEmpty(sortOrder)){
                     sortOrder = LIKED_DB_COLUMN_NAME_STATION_FROM + " ASC";
                 }
                 break;
             case LIKED_ROUTES_ID_URI:
                 //добавление id к условию выборки
                 String id = uri.getLastPathSegment();
-                if (selection.isEmpty()){
+                if (TextUtils.isEmpty(selection)){
                     selection = LIKED_DB_COLUMN_NAME_ID + " = " + id;
                 }
                 else {
@@ -140,6 +141,11 @@ public class ContentProviderLikedDB extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         switch (uriMatcher.match(uri)){
+            case LIKED_ROUTES_URI:
+                if (selection.isEmpty()){
+                    throw new IllegalArgumentException("Error selection");
+                }
+                break;
             case LIKED_ROUTES_ID_URI:
                 String id = uri.getLastPathSegment();
                 if (selection.isEmpty()){

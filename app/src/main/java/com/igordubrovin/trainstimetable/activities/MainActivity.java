@@ -248,8 +248,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     private void onLoadLikedDBEn(Cursor cursor){
-        if (cursor.getColumnCount() != 0){
+        if (cursor.getCount() != 0){
             ivLiked.setImageResource(R.drawable.star_liked);
+            liked = true;
+        } else {
+            ivLiked.setImageResource(R.drawable.star_not_liked);
+            liked = false;
         }
     }
 
