@@ -25,7 +25,7 @@ public class ContentProviderLikedDB extends ContentProvider {
     private static final String LIKED_DB_TABLE_NAME = "LikedRoutes";
     private static final int LIKED_DB_VERSION = 1;
     //поля
-    private static final String LIKED_DB_COLUMN_NAME_ID = "_id";
+    public static final String LIKED_DB_COLUMN_NAME_ID = "_id";
     public static final String LIKED_DB_COLUMN_NAME_STATION_FROM = "StationFrom";
     public static final String LIKED_DB_COLUMN_NAME_STATION_TO = "StationTo";
     //создание таблицы
