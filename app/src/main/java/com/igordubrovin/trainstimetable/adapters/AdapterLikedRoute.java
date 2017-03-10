@@ -33,6 +33,11 @@ public class AdapterLikedRoute extends RecyclerView.Adapter<AdapterLikedRoute.Vi
         this.notifyDataSetChanged();
     }
 
+    public void closeCursor(){
+        if (cursor != null)
+            cursor.close();
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_liked_route_adapter, parent, false);
@@ -83,8 +88,10 @@ public class AdapterLikedRoute extends RecyclerView.Adapter<AdapterLikedRoute.Vi
         @Override
         public boolean onMenuItemClick(MenuItem item) {
             if (listener != null){
-                cursor.moveToPosition(getAdapterPosition());
-                listener.onItemContextMenuClickListener(cursor.getInt(cursor.getColumnIndex(ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_ID)));
+                int pos = getAdapterPosition();
+                cursor.moveToPosition(pos);
+                int id = cursor.getInt(cursor.getColumnIndex(ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_ID));
+                listener.onItemContextMenuClickListener(id);
                 return true;
             }
             return false;

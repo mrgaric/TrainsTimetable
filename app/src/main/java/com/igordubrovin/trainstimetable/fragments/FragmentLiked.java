@@ -5,8 +5,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,26 +15,29 @@ import android.widget.TextView;
 
 import com.igordubrovin.trainstimetable.R;
 import com.igordubrovin.trainstimetable.adapters.AdapterLikedRoute;
+import com.igordubrovin.trainstimetable.utils.CPLikedHelper;
 import com.igordubrovin.trainstimetable.utils.ContentProviderLikedDB;
 
 /**
  * Created by Игорь on 09.03.2017.
  */
 
-public class FragmentLiked extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, AdapterLikedRoute.OnItemContextMenuClickListener {
+public class FragmentLiked extends Fragment implements CPLikedHelper.LoadListener, AdapterLikedRoute.OnItemContextMenuClickListener {
 
-    private final static int LOAD_LIKED = 1;
+    private AdapterLikedRoute adapter;
+    private CPLikedHelper likedHelper;
 
-    AdapterLikedRoute adapter;
+    private TextView tvNotLiked;
+    private RecyclerView rvLiked;
 
-    TextView tvNotLiked;
-    RecyclerView rvLiked;
+    private ActionLikedFragment listener;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         adapter = new AdapterLikedRoute();
         adapter.setOnItemContextMenuClickListener(this);
+        likedHelper = new CPLikedHelper(getContext());
         this.setRetainInstance(true);
     }
 
@@ -51,40 +52,47 @@ public class FragmentLiked extends Fragment implements LoaderManager.LoaderCallb
         rvLiked = (RecyclerView) view.findViewById(R.id.rvLiked);
         rvLiked.setLayoutManager(linearLayoutManager);
         rvLiked.setAdapter(adapter);
-        getActivity().getSupportLoaderManager().restartLoader(LOAD_LIKED, null, this);
+
+        likedHelper.setLoadListener(this);
+        likedHelper.setUri(ContentProviderLikedDB.URI_LIKED_ROUTES_CONTENT)
+                .startLoadItemDB(getActivity().getSupportLoaderManager(), CPLikedHelper.LOAD_LIKED, null);
+
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        adapter.closeCursor();
+        super.onDestroyView();
     }
 
     @Override
     public void onItemContextMenuClickListener(int id) {
         String uri = ContentProviderLikedDB.URI_LIKED_ROUTES_CONTENT.toString() + "/" + id;
         Uri newUri = Uri.parse(uri);
-        getContext().getContentResolver().delete(newUri, null, null);
+        likedHelper.setUri(newUri)
+                .deleteItemDB(null, null);
+        if (listener != null)
+            listener.actionDel(id);
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(getContext(),
-                ContentProviderLikedDB.URI_LIKED_ROUTES_CONTENT,
-                null,
-                null,
-                null,
-                null);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (loader.getId() == LOAD_LIKED){
-            if (data.getCount() != 0){
-                tvNotLiked.setVisibility(View.GONE);
-                rvLiked.setVisibility(View.VISIBLE);
-                adapter.swapCursor(data);
-            }
+    public void loadEnd(Loader<Cursor> loader, Cursor cursor) {
+        if (cursor.getCount() != 0) {
+            tvNotLiked.setVisibility(View.GONE);
+            rvLiked.setVisibility(View.VISIBLE);
+            adapter.swapCursor(cursor);
+        } else {
+            tvNotLiked.setVisibility(View.VISIBLE);
+            rvLiked.setVisibility(View.GONE);
         }
     }
 
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
+    public void setActionListener(ActionLikedFragment l){
+        listener = l;
+    }
 
+    public interface ActionLikedFragment{
+        void actionDel(int id);
     }
 }

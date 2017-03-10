@@ -142,13 +142,13 @@ public class ContentProviderLikedDB extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         switch (uriMatcher.match(uri)){
             case LIKED_ROUTES_URI:
-                if (selection.isEmpty()){
+                if (TextUtils.isEmpty(selection)){
                     throw new IllegalArgumentException("Error selection");
                 }
                 break;
             case LIKED_ROUTES_ID_URI:
                 String id = uri.getLastPathSegment();
-                if (selection.isEmpty()){
+                if (TextUtils.isEmpty(selection)){
                     selection = LIKED_DB_COLUMN_NAME_ID + " = " + id;
                 }else {
                     selection = selection + " AND " + LIKED_DB_COLUMN_NAME_ID + " = " + id;

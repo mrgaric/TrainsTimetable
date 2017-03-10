@@ -3,13 +3,13 @@ package com.igordubrovin.trainstimetable.activities;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -23,6 +23,7 @@ import com.igordubrovin.trainstimetable.R;
 import com.igordubrovin.trainstimetable.dialogs.DateDialogFragment;
 import com.igordubrovin.trainstimetable.fragments.FragmentLiked;
 import com.igordubrovin.trainstimetable.fragments.FragmentSelectionTrain;
+import com.igordubrovin.trainstimetable.utils.CPLikedHelper;
 import com.igordubrovin.trainstimetable.utils.ConstProject;
 import com.igordubrovin.trainstimetable.utils.ContentProviderLikedDB;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -32,9 +33,9 @@ import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
+public class MainActivity extends AppCompatActivity implements CPLikedHelper.LoadListener{
 
-    private final static int CHECK_LIKED = 0;
+    private CPLikedHelper likedHelper;
 
     private Drawer drawer;
     private String[] selectFragment;
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private ImageView ivLiked;
 
     private boolean liked;
+    private int likedId;
 
     private FragmentSelectionTrain fragmentSelectionTrain;
 
@@ -115,13 +117,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 .withOnDrawerItemClickListener(drawerItemClickListener)
                 .build();
 
+        likedHelper = new CPLikedHelper(getApplicationContext());
+        likedHelper.setLoadListener(this);
+
         Fragment fragment = getCurrentFragment(ConstProject.FRAGMENT_SELECTION_TRAIN);
 
         if (fragment == null) {
-            fragmentSelectionTrain = new FragmentSelectionTrain();
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragmentContainer, fragmentSelectionTrain, ConstProject.FRAGMENT_SELECTION_TRAIN)
-                    .commit();
+            fragment = getCurrentFragment(ConstProject.FRAGMENT_LIKED_ROUTE);
+            if (fragment == null) {
+                fragmentSelectionTrain = new FragmentSelectionTrain();
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.fragmentContainer, fragmentSelectionTrain, ConstProject.FRAGMENT_SELECTION_TRAIN)
+                        .commit();
+            }
         }
     }
 
@@ -130,16 +138,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1){
             if (resultCode == RESULT_OK){
+                String selection;
+                String[] selectionArgs;
                 stationFrom = data.getStringExtra(ConstProject.STATION_FROM);
                 stationTo = data.getStringExtra(ConstProject.STATION_TO);
                 tvSearchStation.setText(stationFrom + " - " + stationTo);
                 llSelection.setVisibility(View.VISIBLE);
-                String selection = ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_STATION_FROM + " = ? AND " + ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_STATION_TO + " = ?";
-                String[] selectionArgs = new String[]{stationFrom, stationTo};
+
+                selection = ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_STATION_FROM + " = ? AND " + ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_STATION_TO + " = ?";
+                selectionArgs = new String[]{stationFrom, stationTo};
+
                 Bundle bundle = new Bundle();
                 bundle.putString("selection", selection);
                 bundle.putStringArray("selectionArgs", selectionArgs);
-                getSupportLoaderManager().restartLoader(CHECK_LIKED, bundle, this);
+                likedHelper.setUri(ContentProviderLikedDB.URI_LIKED_ROUTES_CONTENT)
+                        .startLoadItemDB(getSupportLoaderManager(), CPLikedHelper.CHECK_LIKED, bundle);
             }
         }
     }
@@ -149,6 +162,28 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         if(drawer.isDrawerOpen()){
             drawer.closeDrawer();
         }else super.onBackPressed();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putBoolean("liked", liked);
+        outState.putInt("likedId", likedId);
+        outState.putString("StationFrom", stationFrom);
+        outState.putString("StationTo", stationTo);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState != null){
+            stationFrom = savedInstanceState.getString("stationFrom");
+            stationTo = savedInstanceState.getString("stationTo");
+            liked = savedInstanceState.getBoolean("liked");
+            if (liked)
+                setLiked(savedInstanceState.getInt("likedId"));
+
+        }
     }
 
     //View listener
@@ -169,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                         containerItemToolbar.setVisibility(View.GONE);
                         llSelection.setVisibility(View.GONE);
                         FragmentLiked fragmentLiked = new FragmentLiked();
+                        fragmentLiked.setActionListener(listenerActionLikedFragment);
                         getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.fragmentContainer, fragmentLiked, ConstProject.FRAGMENT_LIKED_ROUTE)
                                 .commit();
@@ -224,17 +260,22 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             if (liked){
                 String selection = ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_STATION_FROM + " = ? AND " + ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_STATION_TO + " = ?";
                 String[] selectionArgs = new String[]{stationFrom, stationTo};
-                getContentResolver().delete(ContentProviderLikedDB.URI_LIKED_ROUTES_CONTENT, selection, selectionArgs);
-                ivLiked.setImageResource(R.drawable.star_not_liked);
-                liked = false;
+
+                likedHelper.setUri(ContentProviderLikedDB.URI_LIKED_ROUTES_CONTENT)
+                        .deleteItemDB(selection, selectionArgs);
+               // getContentResolver().delete(ContentProviderLikedDB.URI_LIKED_ROUTES_CONTENT, selection, selectionArgs);
+                resetLiked();
             }
             else {
+                Uri resultUri;
+
                 ContentValues cv = new ContentValues();
                 cv.put(ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_STATION_FROM, stationFrom);
                 cv.put(ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_STATION_TO, stationTo);
-                getContentResolver().insert(ContentProviderLikedDB.URI_LIKED_ROUTES_CONTENT, cv);
-                ivLiked.setImageResource(R.drawable.star_liked);
-                liked = true;
+
+                resultUri = likedHelper.setUri(ContentProviderLikedDB.URI_LIKED_ROUTES_CONTENT)
+                        .insertItemDB(cv);
+                setLiked(Integer.parseInt(resultUri.getLastPathSegment()));
             }
         }
     };
@@ -255,6 +296,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     };
 
+    FragmentLiked.ActionLikedFragment listenerActionLikedFragment = new FragmentLiked.ActionLikedFragment() {
+        @Override
+        public void actionDel(int id) {
+            if (likedId == id){
+                resetLiked();
+            }
+        }
+    };
+
     //вспомогательные методы
 
     private void setColorEditText(TextView tvChoice, TextView tvNonChoice1, TextView tvNonChoice2){
@@ -263,42 +313,26 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         tvNonChoice2.setHintTextColor(ContextCompat.getColor(getApplicationContext(), R.color.secondary_text_material_dark));
     }
 
-    private void onLoadCheckLiked(Cursor cursor){
-        if (cursor.getCount() != 0){
-            ivLiked.setImageResource(R.drawable.star_liked);
-            liked = true;
-        } else {
-            ivLiked.setImageResource(R.drawable.star_not_liked);
-            liked = false;
-        }
-        cursor.close();
+    private void setLiked(int id){
+        ivLiked.setImageResource(R.drawable.star_liked);
+        liked = true;
+        likedId = id;
+    }
+
+    private void resetLiked(){
+        ivLiked.setImageResource(R.drawable.star_not_liked);
+        liked = false;
     }
 
     //LoaderCallback
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String selection = null;
-        String[] selectionArgs = null;
-        if (args != null){
-            selection = args.getString("selection");
-            selectionArgs = args.getStringArray("selectionArgs");
+    public void loadEnd(Loader<Cursor> loader, Cursor cursor) {
+        if (cursor.getCount() != 0){
+            setLiked(cursor.getInt(cursor.getColumnIndex(ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_ID)));
+        } else {
+            resetLiked();
         }
-        return new CursorLoader(getApplicationContext(),
-                ContentProviderLikedDB.URI_LIKED_ROUTES_CONTENT,
-                null,
-                selection,
-                selectionArgs,
-                null);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (loader.getId() == CHECK_LIKED) onLoadCheckLiked(data);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
+        cursor.close();
     }
 }

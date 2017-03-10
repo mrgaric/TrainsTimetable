@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/llItemLiked">
+    android:layout_height="wrap_content"
+    android:id="@+id/llItemLiked"
+    android:background="@drawable/custom_background_item">
     <LinearLayout
         android:orientation="horizontal" android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -12,21 +13,22 @@
             android:id="@+id/tvItemLikedFrom"
             android:layout_weight="1"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:textSize="@dimen/text_size_item_search"/>
         <View
             android:layout_width="0dp"
             android:layout_height="3dp"
             android:layout_weight="0.05"
             android:layout_gravity="center_vertical"
-            android:background="@color/accent"
-            />
+            android:background="@color/accent" />
         <TextView
             android:layout_width="0dp"
             android:layout_height="@dimen/height_tv_item_search"
             android:id="@+id/tvItemLikedTo"
             android:layout_weight="1"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:textSize="@dimen/text_size_item_search"/>
     </LinearLayout>
     <View
         android:layout_width="match_parent"
