@@ -235,14 +235,21 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
     View.OnClickListener clickSelectTimetable = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            fragmentSelectionTrain = new FragmentSelectionTrain();
             switch (v.getId()){
                 case R.id.tvImmediate:
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer, fragmentSelectionTrain, ConstProject.FRAGMENT_SELECTION_TRAIN)
+                            .commit();
                     fragmentSelectionTrain.immediate();
                     setColorEditText(tvImmediate, tvForDay, tvChoiceDate);
                     break;
                 case R.id.tvForDay:
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer, fragmentSelectionTrain, ConstProject.FRAGMENT_SELECTION_TRAIN)
+                            .commit();
                     fragmentSelectionTrain.forDay();
-                    setColorEditText(tvForDay, tvImmediate, tvChoiceDate);
+                    setColorEditText(tvForDay, tvChoiceDate, tvImmediate);
                     break;
                 case R.id.tvChoiceDate:
                     setColorEditText(tvChoiceDate, tvForDay, tvImmediate);
