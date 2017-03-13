@@ -1,13 +1,9 @@
 package com.igordubrovin.trainstimetable.utils;
 
-import android.os.AsyncTask;
-
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +15,60 @@ import java.util.Map;
 
 public class HtmlHelper {
 
-    public static final int NUM_STATION_FROM = 0;
+    public static final int PARSE_FOR_DATE = 0;
+    public static final int PARSE_FOR_DAY= 1;
+
+    public List[] htmlParse(Document doc, int flagParse){
+        List<Map<String, String>> trainsList = new ArrayList<>();
+        List<Map<String, String>> trainsGoneList = new ArrayList<>();
+        Map<String, String> itemTrain;
+        boolean first = true;
+        Elements trainsElements = doc.body().getElementsByTag("tr");
+        for (Element train : trainsElements) {
+            String timeBeforeDeparture;
+            String timeDeparture;
+            String timeArrival;
+            String specialTrain;
+            String station;
+            String travelTime;
+            String price;
+            itemTrain = new HashMap<>();
+            if (train.attr("class").equals("b-calendar__days-week"))
+                break;
+            if (first) {
+                first = false;
+                continue;
+            }
+            timeDeparture = train.getElementsByAttributeValue("class", "b-routers__time b-routers__time_with-icon_false b-routers__time_type_departure")
+                    .text();
+            timeArrival = train.getElementsByAttributeValue("class", "b-routers__time b-routers__time_with-icon_false b-routers__time_type_arrival")
+                    .text();
+            specialTrain = train.getElementsByAttributeValue("class", "b-routers__title-special")
+                    .text();
+            station = train.getElementsByTag("a").text();
+            travelTime = train.getElementsByAttributeValue("class", "b-routers__time b-routers__time_type_in-path").text();
+            price = train.getElementsByAttributeValue("class", "b-routers__item b-routers__item_type_last-column")
+                    .text();
+            itemTrain.put("timeDeparture", timeDeparture);
+            itemTrain.put("timeArrival", timeArrival);
+            itemTrain.put("specialTrain", specialTrain);
+            itemTrain.put("station", station);
+            itemTrain.put("travelTime", travelTime);
+            itemTrain.put("price", price);
+            if (price.equals("ушёл") || (flagParse == PARSE_FOR_DATE)) {
+                trainsGoneList.add(itemTrain);
+            } else {
+                String s = train.attr("data-bem");
+                String[] token = s.split("\"");
+                timeBeforeDeparture = token[39] + " " + token[41];
+                itemTrain.put("timeBeforeDeparture", timeBeforeDeparture);
+                trainsList.add(itemTrain);
+            }
+        }
+        return new List[] {trainsList, trainsGoneList};
+    }
+
+    /*public static final int NUM_STATION_FROM = 0;
     public static final int NUM_STATION_TO = 1;
     public static final int NUM_STATION_CODE_FROM = 2;
     public static final int NUM_STATION_CODE_TO = 3;
@@ -135,5 +184,5 @@ public class HtmlHelper {
             super.onPostExecute(arg);
             listener.loadEnd(trainsList, trainsGoneList);
         }
-    }
+    }*/
 }
