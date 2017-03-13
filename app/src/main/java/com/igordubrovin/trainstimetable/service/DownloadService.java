@@ -1,3 +1,4 @@
+/*
 package com.igordubrovin.trainstimetable.service;
 
 import android.app.Service;
@@ -13,9 +14,11 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 import java.util.List;
 
+*/
 /**
  * Created by Игорь on 13.03.2017.
- */
+ *//*
+
 
 public class DownloadService extends Service {
 
@@ -91,3 +94,4 @@ public class DownloadService extends Service {
     }
 
 }
+*/

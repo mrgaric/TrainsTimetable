@@ -24,7 +24,6 @@ public class AdapterSelectionTrain extends RecyclerView.Adapter<AdapterSelection
         this.notifyDataSetChanged();
     }
 
-
     @Override
     public SelectionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_selection_recycler, parent, false);

@@ -18,9 +18,8 @@ public class HtmlHelper {
     public static final int PARSE_FOR_DATE = 0;
     public static final int PARSE_FOR_DAY= 1;
 
-    public List[] htmlParse(Document doc, int flagParse){
+    public List<Map<String, String>> htmlParse(Document doc){
         List<Map<String, String>> trainsList = new ArrayList<>();
-        List<Map<String, String>> trainsGoneList = new ArrayList<>();
         Map<String, String> itemTrain;
         boolean first = true;
         Elements trainsElements = doc.body().getElementsByTag("tr");
@@ -55,17 +54,17 @@ public class HtmlHelper {
             itemTrain.put("station", station);
             itemTrain.put("travelTime", travelTime);
             itemTrain.put("price", price);
-            if (price.equals("ушёл") || (flagParse == PARSE_FOR_DATE)) {
-                trainsGoneList.add(itemTrain);
+            if (price.equals("ушёл") || price.equals("")) {
+                timeBeforeDeparture = "";
             } else {
                 String s = train.attr("data-bem");
                 String[] token = s.split("\"");
                 timeBeforeDeparture = token[39] + " " + token[41];
-                itemTrain.put("timeBeforeDeparture", timeBeforeDeparture);
-                trainsList.add(itemTrain);
             }
+            itemTrain.put("timeBeforeDeparture", timeBeforeDeparture);
+            trainsList.add(itemTrain);
         }
-        return new List[] {trainsList, trainsGoneList};
+        return trainsList;
     }
 
     /*public static final int NUM_STATION_FROM = 0;

@@ -121,7 +121,6 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
         likedHelper.setLoadListener(this);
 
         Fragment fragment = getCurrentFragment(ConstProject.FRAGMENT_SELECTION_TRAIN);
-
         if (fragment == null) {
             fragment = getCurrentFragment(ConstProject.FRAGMENT_LIKED_ROUTE);
             if (fragment == null) {
@@ -130,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
                         .add(R.id.fragmentContainer, fragmentSelectionTrain, ConstProject.FRAGMENT_SELECTION_TRAIN)
                         .commit();
             }
-        }
+        } else fragmentSelectionTrain = (FragmentSelectionTrain)fragment;
     }
 
     @Override
@@ -235,20 +234,16 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
     View.OnClickListener clickSelectTimetable = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            fragmentSelectionTrain = new FragmentSelectionTrain();
             switch (v.getId()){
                 case R.id.tvImmediate:
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragmentContainer, fragmentSelectionTrain, ConstProject.FRAGMENT_SELECTION_TRAIN)
-                            .commit();
-                    fragmentSelectionTrain.immediate();
+                    fragmentSelectionTrain.immediate("Москва", "Зеленоград");
                     setColorEditText(tvImmediate, tvForDay, tvChoiceDate);
                     break;
                 case R.id.tvForDay:
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragmentContainer, fragmentSelectionTrain, ConstProject.FRAGMENT_SELECTION_TRAIN)
                             .commit();
-                    fragmentSelectionTrain.forDay();
+                    fragmentSelectionTrain.forDay("Москва", "Одинцово");
                     setColorEditText(tvForDay, tvChoiceDate, tvImmediate);
                     break;
                 case R.id.tvChoiceDate:
@@ -292,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
     DateDialogFragment.ActionListener listenerDateDialog = new DateDialogFragment.ActionListener() {
         @Override
         public void clickPositiveButton(int year, int month, int dayOfMonth) {
-            fragmentSelectionTrain.choiceDate();
+          //  fragmentSelectionTrain.choiceDate();
         }
 
         @Override
