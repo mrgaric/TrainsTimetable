@@ -17,6 +17,7 @@ import com.igordubrovin.trainstimetable.R;
 import com.igordubrovin.trainstimetable.adapters.AdapterSelectionTrain;
 import com.igordubrovin.trainstimetable.utils.ConstProject;
 import com.igordubrovin.trainstimetable.utils.HtmlHelper;
+import com.igordubrovin.trainstimetable.utils.UrlBuilder;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -44,16 +45,13 @@ public class FragmentSelectionTrain extends Fragment {
     boolean nothing;
     boolean searching;
     boolean shows;
-
-    private int choiceTimetable;
-
     LoadHtml loadHtmlImmediate;
     LoadHtml loadHtmlDay;
     LoadHtml loadHtmlDate;
-
     List<Map<String, String>> listTrainForImmediate;
     List<Map<String, String>> listTrainForDay;
     List<Map<String, String>> listTrainForDate;
+    private int choiceTimetable;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -104,22 +102,27 @@ public class FragmentSelectionTrain extends Fragment {
     }
 
     public void loadTrainsImmediate(String stationFrom, String stationTo){
+        UrlBuilder urlBuilder = new UrlBuilder();
+        String url = urlBuilder.setStationTo(stationTo)
+                .setStationFrom(stationFrom)
+                .createUrl();
         updViewVisible(pbLoad, tvInformFragment, rvSelection);
-        String url = "https://t.rasp.yandex.ru/search/suburban/?toName=" + stationTo + "&fromName=" + stationFrom;
-        loadHtmlImmediate = new LoadHtml();
-        loadHtmlImmediate.setFlagLoad(LoadHtml.LOAD_FOR_IMMEDIATE);
+        loadHtmlImmediate = new LoadHtml(LoadHtml.LOAD_FOR_IMMEDIATE);
         loadHtmlImmediate.execute(url);
     }
 
     public void loadTrainsForDay(String stationFrom, String stationTo){
-      //  if (listTrainForDay.isEmpty()) {
         if (listTrainForDay == null) {
-            if (loadHtmlImmediate != null && loadHtmlImmediate.getStatus() != AsyncTask.Status.RUNNING){
-                updViewVisible(pbLoad, tvInformFragment, rvSelection);
-                String url = "https://t.rasp.yandex.ru/search/suburban/?toName=" + stationTo + "&fromName=" + stationFrom;
-                loadHtmlDay = new LoadHtml();
-                loadHtmlDay.setFlagLoad(LoadHtml.LOAD_FOR_DAY);
-                loadHtmlDay.execute(url);
+            if (loadHtmlImmediate != null){
+                if (loadHtmlImmediate.getStatus() != AsyncTask.Status.RUNNING) {
+                    UrlBuilder urlBuilder = new UrlBuilder();
+                    String url = urlBuilder.setStationTo(stationTo)
+                            .setStationFrom(stationFrom)
+                            .createUrl();
+                    updViewVisible(pbLoad, tvInformFragment, rvSelection);
+                    loadHtmlDay = new LoadHtml(LoadHtml.LOAD_FOR_DAY);
+                    loadHtmlDay.execute(url);
+                }
             }
         }
         else {
@@ -129,9 +132,8 @@ public class FragmentSelectionTrain extends Fragment {
     }
 
     public void loadTrainsChoiceDate(String stationFrom, String stationTo, String dayDeparture, String monthDeparture){
-        int sizeListTrainForDate = listTrainForDate.size() - 1;
-    //    if (!listTrainForDate.isEmpty()){
         if (listTrainForDate != null){
+            int sizeListTrainForDate = listTrainForDate.size() - 1;
             if (listTrainForDate.get(sizeListTrainForDate).get(DAY_DEPARTURE).equals(dayDeparture)
                     && listTrainForDate.get(sizeListTrainForDate).get(MONTH_DEPARTURE).equals(monthDeparture)){
                 updViewVisible(rvSelection, pbLoad, tvInformFragment);
@@ -139,12 +141,13 @@ public class FragmentSelectionTrain extends Fragment {
                 return;
             }
         }
+        UrlBuilder urlBuilder = new UrlBuilder();
+        String url = urlBuilder.setStationTo(stationTo)
+                .setStationFrom(stationFrom)
+                .setDateDeparture(dayDeparture, monthDeparture)
+                .createUrl();
         updViewVisible(pbLoad, tvInformFragment, rvSelection);
-        String url = "https://t.rasp.yandex.ru/search/suburban/?toName=" + stationTo+ "&fromName=" +
-                stationFrom + "&when=" + dayDeparture + "+" + monthDeparture;
-        loadHtmlDate = new LoadHtml();
-        loadHtmlDate.setDate(dayDeparture, monthDeparture);
-        loadHtmlDate.setFlagLoad(LoadHtml.LOAD_FOR_DATE);
+        loadHtmlDate = new LoadHtml(LoadHtml.LOAD_FOR_DATE, dayDeparture, monthDeparture);
         loadHtmlDate.execute(url);
     }
 
@@ -154,41 +157,15 @@ public class FragmentSelectionTrain extends Fragment {
         viewGone2.setVisibility(View.GONE);
     }
 
-    /*public void setChoiceImmediate(){
-        choiceImmediate = true;
-        choiceDay = false;
-        choiceDate = false;
-    }
-
-    public void setChoiceDay(){
-        choiceDay = true;
-        choiceImmediate = false;
-        choiceDate = false;
-    }
-
-    public void setChoiceDate(){
-        choiceDate = true;
-        choiceDay = false;
-        choiceImmediate = false;
-    }*/
-
     public void setChoiceTimetable(int choiceTimetable){
         this.choiceTimetable = choiceTimetable;
     }
 
     public void clearDataCache(){
-        /*listTrainForDate = new ArrayList<>();
-        listTrainForDay = new ArrayList<>();
-        listTrainForImmediate = new ArrayList<>();*/
         listTrainForDate = null;
         listTrainForDay = null;
         listTrainForImmediate = null;
     }
-
-    /*@Override
-    public void loadEnd(List<Map<String, String>> trainsList, List<Map<String, String>> trainsGoneList) {
-        adapter.swapData(trainsList);
-    }*/
 
     private class LoadHtml extends AsyncTask<String, Void, List<Map<String, String>>>{
         static final int LOAD_FOR_IMMEDIATE = 0;
@@ -200,11 +177,12 @@ public class FragmentSelectionTrain extends Fragment {
         private String dayDeparture;
         private String monthDeparture;
 
-        void setFlagLoad(int flagLoad){
+        LoadHtml(int flagLoad){
             this.flagLoad = flagLoad;
         }
 
-        void setDate(String dayDeparture, String monthDeparture){
+        LoadHtml(int flagLoad, String dayDeparture, String monthDeparture){
+            this.flagLoad = flagLoad;
             this.dayDeparture = dayDeparture;
             this.monthDeparture = monthDeparture;
         }
@@ -248,22 +226,19 @@ public class FragmentSelectionTrain extends Fragment {
             switch (flagLoad) {
                 case LOAD_FOR_IMMEDIATE:
                     if (choiceTimetable == ConstProject.CHOICE_FOR_IMMEDIATE) {
-                        //listTrainForDay.addAll(maps);
                         listTrainForDay = new ArrayList<>(maps);
                         for (int i = 0; i < maps.size() - 1; i++) {
                             if (!maps.get(i).get("timeBeforeDeparture").equals("")) {
                                 maps.subList(0, i).clear();
-                                //listTrainForImmediate.addAll(maps);
                                 listTrainForImmediate = new ArrayList<>(maps);
                                 break;
                             }
                         }
                         updViewVisible(rvSelection, pbLoad, tvInformFragment);
                         adapter.swapData(listTrainForImmediate);
+                        break;
                     }
-                    break;
                 case LOAD_FOR_DAY:
-                    //listTrainForDay.addAll(listTrainForImmediate);
                     listTrainForDay = new ArrayList<>(maps);
                     if (choiceTimetable == ConstProject.CHOICE_FOR_DAY) {
                         updViewVisible(rvSelection, pbLoad, tvInformFragment);
@@ -271,7 +246,6 @@ public class FragmentSelectionTrain extends Fragment {
                     }
                     break;
                 case LOAD_FOR_DATE:
-                    //listTrainForDate.addAll(maps);
                     listTrainForDate = new ArrayList<>(maps);
                     Map<String, String> madDate = new HashMap<>();
                     madDate.put(DAY_DEPARTURE, dayDeparture);
@@ -288,25 +262,4 @@ public class FragmentSelectionTrain extends Fragment {
             searching = false;
         }
     }
-
-    /*@Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        if (getActivity() instanceof MainActivity){
-            boolean fromIsClear = ((MainActivity)getActivity()).getCetFromIsClear();
-            boolean toIsClear = ((MainActivity)getActivity()).getCetToIsClear();
-            if (fromIsClear || toIsClear){
-                if (fromIsClear){
-                    tvInformFragment.setText(ConstProject.INF_ENTER_FROM);
-                }
-                else {
-                    tvInformFragment.setText(ConstProject.INF_ENTER_TO);
-                }
-            } else {
-                svTvInfo.setVisibility(View.GONE);
-                svPbInfo.setVisibility(View.VISIBLE);
-            }
-        }
-    }*/
 }
