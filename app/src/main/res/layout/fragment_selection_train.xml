@@ -22,7 +22,9 @@
             android:gravity="center"
             android:textSize="@dimen/dim_error_connection"
             android:text="@string/enter_station_from"
-            android:layout_marginTop="@dimen/margin_top_text"/>
+            android:layout_marginTop="@dimen/margin_top_text"
+            android:visibility="gone"
+            />
 
         <ProgressBar
             android:id="@+id/pbLoad"
@@ -30,7 +32,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/margin_top_text"
-            />
+            android:visibility="gone"/>
 
     </FrameLayout>
 </android.support.design.widget.CoordinatorLayout>

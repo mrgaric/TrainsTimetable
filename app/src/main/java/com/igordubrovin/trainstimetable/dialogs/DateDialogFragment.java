@@ -9,7 +9,7 @@ import android.support.v4.app.DialogFragment;
 import android.widget.DatePicker;
 
 import com.igordubrovin.trainstimetable.R;
-import com.igordubrovin.trainstimetable.utils.CurrentDate;
+import com.igordubrovin.trainstimetable.utils.DateHelper;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ public class DateDialogFragment extends DialogFragment implements DatePickerDial
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        List<Integer> date = CurrentDate.getListCurrentDate();
+        List<Integer> date = DateHelper.getListCurrentDate();
         DatePickerDialog picker = new DatePickerDialog(getActivity(), R.style.StyleDatePicker, this, date.get(2), date.get(1)-1, date.get(0));
         picker.setOnCancelListener(this);
         picker.setTitle("Выбор даты");

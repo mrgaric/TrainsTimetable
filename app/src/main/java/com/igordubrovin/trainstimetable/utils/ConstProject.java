@@ -28,4 +28,9 @@ public class ConstProject {
     public static final String SELECTION_DB = COLUMN_NAME_STATION + " LIKE ";
     public static final String PART_STATION_NAME = "partStationName";
 
+
+    public static final int CHOICE_FOR_IMMEDIATE = 0;
+    public static final int CHOICE_FOR_DAY = 1;
+    public static final int CHOICE_FOR_DATE = 2;
+
 }

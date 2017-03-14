@@ -11,8 +11,13 @@
     </style>
 
     <style name="StyleDatePicker" parent="Theme.AppCompat.Light.Dialog">
-    <item name="colorPrimary">@color/primary</item>
-    <item name="colorPrimaryDark">@color/primary_dark</item>
-    <item name="colorAccent">@color/primary</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/primary</item>
     </style>
+
+    <style name="ItemTextView" parent="Widget.AppCompat.EditText">
+
+    </style>
+
 </resources>

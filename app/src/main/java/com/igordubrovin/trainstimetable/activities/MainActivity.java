@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.PersistableBundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -26,6 +26,7 @@ import com.igordubrovin.trainstimetable.fragments.FragmentSelectionTrain;
 import com.igordubrovin.trainstimetable.utils.CPLikedHelper;
 import com.igordubrovin.trainstimetable.utils.ConstProject;
 import com.igordubrovin.trainstimetable.utils.ContentProviderLikedDB;
+import com.igordubrovin.trainstimetable.utils.DateHelper;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -50,13 +51,17 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
     private LinearLayout llSelection;
     private TextView tvImmediate;
     private TextView tvForDay;
-    private TextView tvChoiceDate;
+    private TextView tvForDate;
     private ImageView ivLiked;
 
     private boolean liked;
     private int likedId;
 
     private FragmentSelectionTrain fragmentSelectionTrain;
+
+    private int choiceTimetable = ConstProject.CHOICE_FOR_IMMEDIATE;
+
+    AppBarLayout appBarLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,15 +76,17 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
 
         tvImmediate = (TextView) findViewById(R.id.tvImmediate);
         tvForDay = (TextView) findViewById(R.id.tvForDay);
-        tvChoiceDate = (TextView) findViewById(R.id.tvChoiceDate);
-        setColorEditText(tvImmediate, tvForDay, tvChoiceDate);
+        tvForDate = (TextView) findViewById(R.id.tvChoiceDate);
+        //setColorEditText(tvImmediate, tvForDay, tvForDate);
 
         tvImmediate.setOnClickListener(clickSelectTimetable);
         tvForDay.setOnClickListener(clickSelectTimetable);
-        tvChoiceDate.setOnClickListener(clickSelectTimetable);
+        tvForDate.setOnClickListener(clickSelectTimetable);
 
         containerItemToolbar = (FrameLayout) findViewById(R.id.toolbarItemContainer);
         getLayoutInflater().inflate(R.layout.toolbar_item_1, containerItemToolbar, true);
+
+        appBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
 
         tvSearchStation = (TextView) containerItemToolbar.findViewById(R.id.tvSearchStation);
         tvSearchStation.setOnClickListener(tvSearchStationClick);
@@ -152,6 +159,9 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
                 bundle.putStringArray("selectionArgs", selectionArgs);
                 likedHelper.setUri(ContentProviderLikedDB.URI_LIKED_ROUTES_CONTENT)
                         .startLoadItemDB(getSupportLoaderManager(), CPLikedHelper.CHECK_LIKED, bundle);
+
+                fragmentSelectionTrain.clearDataCache();
+                tvImmediate.callOnClick();
             }
         }
     }
@@ -164,24 +174,40 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         outState.putBoolean("liked", liked);
         outState.putInt("likedId", likedId);
         outState.putString("StationFrom", stationFrom);
         outState.putString("StationTo", stationTo);
+        outState.putInt("choiceTimetable", choiceTimetable);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState != null){
-            stationFrom = savedInstanceState.getString("stationFrom");
-            stationTo = savedInstanceState.getString("stationTo");
+            stationFrom = savedInstanceState.getString("StationFrom");
+            stationTo = savedInstanceState.getString("StationTo");
             liked = savedInstanceState.getBoolean("liked");
+            choiceTimetable = savedInstanceState.getInt("choiceTimetable");
             if (liked)
                 setLiked(savedInstanceState.getInt("likedId"));
-
+            if (stationFrom != null){
+                tvSearchStation.setText(stationFrom + " - " + stationTo);
+                llSelection.setVisibility(View.VISIBLE);
+            }
+            switch (choiceTimetable){
+                case ConstProject.CHOICE_FOR_IMMEDIATE:
+                    setColorEditText(tvImmediate, tvForDay, tvForDate);
+                    break;
+                case ConstProject.CHOICE_FOR_DAY:
+                    setColorEditText(tvForDay, tvForDate, tvImmediate);
+                    break;
+                case ConstProject.CHOICE_FOR_DATE:
+                    setColorEditText(tvForDate, tvForDay, tvImmediate);
+                    break;
+            }
         }
     }
 
@@ -195,9 +221,7 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
                     case 1:
                         containerItemToolbar.setVisibility(View.VISIBLE);
                         FragmentSelectionTrain fragmentSelectionTrain = new FragmentSelectionTrain();
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.fragmentContainer, fragmentSelectionTrain, ConstProject.FRAGMENT_SELECTION_TRAIN)
-                                .commit();
+                        getSupportFragmentManager().popBackStack();
                         break;
                     case 2:
                         containerItemToolbar.setVisibility(View.GONE);
@@ -205,6 +229,7 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
                         FragmentLiked fragmentLiked = new FragmentLiked();
                         fragmentLiked.setActionListener(listenerActionLikedFragment);
                         getSupportFragmentManager().beginTransaction()
+                                .addToBackStack(ConstProject.FRAGMENT_SELECTION_TRAIN)
                                 .replace(R.id.fragmentContainer, fragmentLiked, ConstProject.FRAGMENT_LIKED_ROUTE)
                                 .commit();
                         break;
@@ -212,6 +237,7 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
 
                         break;
                 }
+                appBarLayout.setExpanded(true);
             }
             return false;
         }
@@ -236,23 +262,24 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
         public void onClick(View v) {
             switch (v.getId()){
                 case R.id.tvImmediate:
-                    fragmentSelectionTrain.immediate("Москва", "Зеленоград");
-                    setColorEditText(tvImmediate, tvForDay, tvChoiceDate);
+                    choiceTimetable = ConstProject.CHOICE_FOR_IMMEDIATE;
+                    fragmentSelectionTrain.loadTrainsImmediate(stationFrom, stationTo);
+                    setColorEditText(tvImmediate, tvForDay, tvForDate);
                     break;
                 case R.id.tvForDay:
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragmentContainer, fragmentSelectionTrain, ConstProject.FRAGMENT_SELECTION_TRAIN)
-                            .commit();
-                    fragmentSelectionTrain.forDay("Москва", "Одинцово");
-                    setColorEditText(tvForDay, tvChoiceDate, tvImmediate);
+                    choiceTimetable = ConstProject.CHOICE_FOR_DAY;
+                    fragmentSelectionTrain.loadTrainsForDay(stationFrom, stationTo);
+                    setColorEditText(tvForDay, tvForDate, tvImmediate);
                     break;
                 case R.id.tvChoiceDate:
-                    setColorEditText(tvChoiceDate, tvForDay, tvImmediate);
+                    choiceTimetable = ConstProject.CHOICE_FOR_DATE;
+                    setColorEditText(tvForDate, tvForDay, tvImmediate);
                     DateDialogFragment dateDialogFragment = new DateDialogFragment();
                     dateDialogFragment.setActionListener(listenerDateDialog);
                     dateDialogFragment.show(getSupportFragmentManager(), "dateDialog");
                     break;
             }
+            fragmentSelectionTrain.setChoiceTimetable(choiceTimetable);
         }
     };
 
@@ -287,7 +314,11 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
     DateDialogFragment.ActionListener listenerDateDialog = new DateDialogFragment.ActionListener() {
         @Override
         public void clickPositiveButton(int year, int month, int dayOfMonth) {
-          //  fragmentSelectionTrain.choiceDate();
+            String dayDeparture;
+            String monthDeparture;
+            dayDeparture = String.valueOf(dayOfMonth);
+            monthDeparture = DateHelper.getMonthStr(month);
+            fragmentSelectionTrain.loadTrainsChoiceDate(stationFrom, stationTo, dayDeparture, monthDeparture);
         }
 
         @Override

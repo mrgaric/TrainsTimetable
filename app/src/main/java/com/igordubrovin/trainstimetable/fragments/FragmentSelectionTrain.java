@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.igordubrovin.trainstimetable.R;
 import com.igordubrovin.trainstimetable.adapters.AdapterSelectionTrain;
+import com.igordubrovin.trainstimetable.utils.ConstProject;
 import com.igordubrovin.trainstimetable.utils.HtmlHelper;
 
 import org.jsoup.Jsoup;
@@ -39,9 +40,17 @@ public class FragmentSelectionTrain extends Fragment {
     TextView tvInformFragment;
     RecyclerView rvSelection;
     AdapterSelectionTrain adapter;
+
+    boolean nothing;
+    boolean searching;
+    boolean shows;
+
+    private int choiceTimetable;
+
     LoadHtml loadHtmlImmediate;
     LoadHtml loadHtmlDay;
     LoadHtml loadHtmlDate;
+
     List<Map<String, String>> listTrainForImmediate;
     List<Map<String, String>> listTrainForDay;
     List<Map<String, String>> listTrainForDate;
@@ -50,9 +59,12 @@ public class FragmentSelectionTrain extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         adapter = new AdapterSelectionTrain();
-        listTrainForImmediate = new ArrayList<>();
+        nothing = true;
+        shows = false;
+        searching = false;
+        /*listTrainForImmediate = new ArrayList<>();
         listTrainForDay = new ArrayList<>();
-        listTrainForDate = new ArrayList<>();
+        listTrainForDate = new ArrayList<>();*/
         this.setRetainInstance(true);
     }
 
@@ -70,11 +82,13 @@ public class FragmentSelectionTrain extends Fragment {
         rvSelection.setLayoutManager(linearLayoutManager);
         rvSelection.setAdapter(adapter);
 
-        /*pbLoad.setVisibility(View.GONE);
-        tvInformFragment.setVisibility(View.VISIBLE);*/
-        pbLoad.setVisibility(View.GONE);
-        tvInformFragment.setVisibility(View.GONE);
-        rvSelection.setVisibility(View.VISIBLE);
+        if (nothing)
+            updViewVisible(tvInformFragment, pbLoad, rvSelection);
+        else if (searching)
+            updViewVisible(pbLoad, tvInformFragment, rvSelection);
+        else if (shows)
+            updViewVisible(rvSelection, pbLoad, tvInformFragment);
+
         return view;
     }
 
@@ -89,37 +103,86 @@ public class FragmentSelectionTrain extends Fragment {
         super.onDestroy();
     }
 
-    public void immediate(String stationFrom, String stationTo){
-        String url = "https://t.rasp.yandex.ru/search/suburban/?toName=" + stationFrom + "&fromName=" + stationTo;
+    public void loadTrainsImmediate(String stationFrom, String stationTo){
+        updViewVisible(pbLoad, tvInformFragment, rvSelection);
+        String url = "https://t.rasp.yandex.ru/search/suburban/?toName=" + stationTo + "&fromName=" + stationFrom;
         loadHtmlImmediate = new LoadHtml();
         loadHtmlImmediate.setFlagLoad(LoadHtml.LOAD_FOR_IMMEDIATE);
         loadHtmlImmediate.execute(url);
     }
 
-    public void forDay(String stationFrom, String stationTo){
-        if (listTrainForDay.isEmpty()) {
-            String url = "https://t.rasp.yandex.ru/search/suburban/?toName=" + stationFrom + "&fromName=" + stationTo;
-            loadHtmlDay = new LoadHtml();
-            loadHtmlDay.setFlagLoad(LoadHtml.LOAD_FOR_DAY);
-            loadHtmlDay.execute(url);
+    public void loadTrainsForDay(String stationFrom, String stationTo){
+      //  if (listTrainForDay.isEmpty()) {
+        if (listTrainForDay == null) {
+            if (loadHtmlImmediate != null && loadHtmlImmediate.getStatus() != AsyncTask.Status.RUNNING){
+                updViewVisible(pbLoad, tvInformFragment, rvSelection);
+                String url = "https://t.rasp.yandex.ru/search/suburban/?toName=" + stationTo + "&fromName=" + stationFrom;
+                loadHtmlDay = new LoadHtml();
+                loadHtmlDay.setFlagLoad(LoadHtml.LOAD_FOR_DAY);
+                loadHtmlDay.execute(url);
+            }
         }
-        else adapter.swapData(listTrainForDay);
+        else {
+            updViewVisible(rvSelection, pbLoad, tvInformFragment);
+            adapter.swapData(listTrainForDay);
+        }
     }
 
-    public void choiceDate(String stationFrom, String stationTo, String dayDeparture, String monthDeparture){
+    public void loadTrainsChoiceDate(String stationFrom, String stationTo, String dayDeparture, String monthDeparture){
         int sizeListTrainForDate = listTrainForDate.size() - 1;
-        if (!listTrainForDate.isEmpty()){
+    //    if (!listTrainForDate.isEmpty()){
+        if (listTrainForDate != null){
             if (listTrainForDate.get(sizeListTrainForDate).get(DAY_DEPARTURE).equals(dayDeparture)
                     && listTrainForDate.get(sizeListTrainForDate).get(MONTH_DEPARTURE).equals(monthDeparture)){
+                updViewVisible(rvSelection, pbLoad, tvInformFragment);
                 adapter.swapData(listTrainForDate);
                 return;
             }
         }
-        String url = "https://t.rasp.yandex.ru/search/suburban/?fromName=" + stationFrom + "&toName="
-                + stationTo + "&when=" + dayDeparture + "+" + monthDeparture;
-        loadHtmlDay = new LoadHtml();
-        loadHtmlDay.setFlagLoad(LoadHtml.LOAD_FOR_DATE);
-        loadHtmlDay.execute(url);
+        updViewVisible(pbLoad, tvInformFragment, rvSelection);
+        String url = "https://t.rasp.yandex.ru/search/suburban/?toName=" + stationTo+ "&fromName=" +
+                stationFrom + "&when=" + dayDeparture + "+" + monthDeparture;
+        loadHtmlDate = new LoadHtml();
+        loadHtmlDate.setDate(dayDeparture, monthDeparture);
+        loadHtmlDate.setFlagLoad(LoadHtml.LOAD_FOR_DATE);
+        loadHtmlDate.execute(url);
+    }
+
+    private void updViewVisible(View viewVisible, View viewGone1, View viewGone2){
+        viewVisible.setVisibility(View.VISIBLE);
+        viewGone1.setVisibility(View.GONE);
+        viewGone2.setVisibility(View.GONE);
+    }
+
+    /*public void setChoiceImmediate(){
+        choiceImmediate = true;
+        choiceDay = false;
+        choiceDate = false;
+    }
+
+    public void setChoiceDay(){
+        choiceDay = true;
+        choiceImmediate = false;
+        choiceDate = false;
+    }
+
+    public void setChoiceDate(){
+        choiceDate = true;
+        choiceDay = false;
+        choiceImmediate = false;
+    }*/
+
+    public void setChoiceTimetable(int choiceTimetable){
+        this.choiceTimetable = choiceTimetable;
+    }
+
+    public void clearDataCache(){
+        /*listTrainForDate = new ArrayList<>();
+        listTrainForDay = new ArrayList<>();
+        listTrainForImmediate = new ArrayList<>();*/
+        listTrainForDate = null;
+        listTrainForDay = null;
+        listTrainForImmediate = null;
     }
 
     /*@Override
@@ -144,6 +207,14 @@ public class FragmentSelectionTrain extends Fragment {
         void setDate(String dayDeparture, String monthDeparture){
             this.dayDeparture = dayDeparture;
             this.monthDeparture = monthDeparture;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            searching = true;
+            nothing = false;
+            shows = false;
         }
 
         @Override
@@ -176,28 +247,45 @@ public class FragmentSelectionTrain extends Fragment {
             super.onPostExecute(maps);
             switch (flagLoad) {
                 case LOAD_FOR_IMMEDIATE:
-                    listTrainForDay.addAll(maps);
-                    for (int i = 0; i < maps.size() - 1; i++) {
-                        if (!maps.get(i).get("timeBeforeDeparture").equals("")) {
-                            maps.subList(0, i).clear();
-                            listTrainForImmediate.addAll(maps);
-                            break;
+                    if (choiceTimetable == ConstProject.CHOICE_FOR_IMMEDIATE) {
+                        //listTrainForDay.addAll(maps);
+                        listTrainForDay = new ArrayList<>(maps);
+                        for (int i = 0; i < maps.size() - 1; i++) {
+                            if (!maps.get(i).get("timeBeforeDeparture").equals("")) {
+                                maps.subList(0, i).clear();
+                                //listTrainForImmediate.addAll(maps);
+                                listTrainForImmediate = new ArrayList<>(maps);
+                                break;
+                            }
                         }
+                        updViewVisible(rvSelection, pbLoad, tvInformFragment);
+                        adapter.swapData(listTrainForImmediate);
                     }
                     break;
                 case LOAD_FOR_DAY:
-                    listTrainForDay.addAll(maps);
+                    //listTrainForDay.addAll(listTrainForImmediate);
+                    listTrainForDay = new ArrayList<>(maps);
+                    if (choiceTimetable == ConstProject.CHOICE_FOR_DAY) {
+                        updViewVisible(rvSelection, pbLoad, tvInformFragment);
+                        adapter.swapData(maps);
+                    }
                     break;
                 case LOAD_FOR_DATE:
-                    listTrainForDate.addAll(maps);
+                    //listTrainForDate.addAll(maps);
+                    listTrainForDate = new ArrayList<>(maps);
                     Map<String, String> madDate = new HashMap<>();
                     madDate.put(DAY_DEPARTURE, dayDeparture);
                     madDate.put(MONTH_DEPARTURE, monthDeparture);
                     listTrainForDate.add(madDate);
+                    if (choiceTimetable == ConstProject.CHOICE_FOR_DATE) {
+                        updViewVisible(rvSelection, pbLoad, tvInformFragment);
+                        adapter.swapData(maps);
+                    }
                     break;
-                default: return;
             }
-            adapter.swapData(maps);
+            shows = true;
+            nothing = false;
+            searching = false;
         }
     }
 
