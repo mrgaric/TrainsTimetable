@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
     <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/refreshTrains"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/refreshTrains">
+        android:layout_height="match_parent">
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rvSelection"
             android:layout_width="match_parent"
@@ -18,10 +18,10 @@
         android:id="@+id/tvInformFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textSize="@dimen/dim_error_connection"
-        android:text="@string/enter_station_from"
         android:layout_marginTop="@dimen/margin_top_text"
+        android:gravity="center"
+        android:text="@string/enter_station_from"
+        android:textSize="@dimen/dim_error_connection"
         android:visibility="gone"
         />
     <ProgressBar
@@ -31,11 +31,4 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/margin_top_text"
         android:visibility="gone"/>
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/btn1"/>
-
-
 </android.support.design.widget.CoordinatorLayout>

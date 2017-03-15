@@ -29,6 +29,10 @@ public class Train {
         this.timeBeforeDeparture = timeBeforeDeparture;
     }
 
+    public static TrainBuilder getTrainBuilder(){
+        return new TrainBuilder();
+    }
+
     public String getTimeDeparture(){
         return timeDeparture;
     }
@@ -55,10 +59,6 @@ public class Train {
 
     public String getTimeBeforeDeparture(){
         return timeBeforeDeparture;
-    }
-
-    public static TrainBuilder getTrainBuilder(){
-        return new TrainBuilder();
     }
 
     public static class TrainBuilder{
@@ -97,6 +97,16 @@ public class Train {
 
         public TrainBuilder setPrice(String price){
             this.price = price;
+            /*for (int i = 0; i <5; i++)
+            {
+                Log.d("myLog", String.valueOf(i));
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            Log.d("myLog", this.price);*/
             return this;
 
         }
