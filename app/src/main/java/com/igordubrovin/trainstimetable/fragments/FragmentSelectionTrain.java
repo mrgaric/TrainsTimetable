@@ -7,26 +7,22 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.igordubrovin.trainstimetable.R;
 import com.igordubrovin.trainstimetable.adapters.AdapterSelectionTrain;
-import com.igordubrovin.trainstimetable.utils.ConstProject;
-import com.igordubrovin.trainstimetable.utils.HtmlHelper;
+import com.igordubrovin.trainstimetable.utils.Train;
 import com.igordubrovin.trainstimetable.utils.UrlBuilder;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Игорь on 21.02.2017.
@@ -53,6 +49,10 @@ public class FragmentSelectionTrain extends Fragment {
     List<Map<String, String>> listTrainForDate;
     private int choiceTimetable;
 
+    LoadHtmlNew loadHtmlNew;
+Button btn;
+
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +64,13 @@ public class FragmentSelectionTrain extends Fragment {
         listTrainForDay = new ArrayList<>();
         listTrainForDate = new ArrayList<>();*/
         this.setRetainInstance(true);
+
+
+        loadHtmlImmediate = new LoadHtml(LoadHtml.LOAD_FOR_IMMEDIATE);
+        loadHtmlImmediate.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "s");
+        loadHtmlNew = new LoadHtmlNew();
+        loadHtmlNew.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "a");
+
     }
 
     @Nullable
@@ -80,50 +87,64 @@ public class FragmentSelectionTrain extends Fragment {
         rvSelection.setLayoutManager(linearLayoutManager);
         rvSelection.setAdapter(adapter);
 
-        if (nothing)
+        /*if (nothing)
             updViewVisible(tvInformFragment, pbLoad, rvSelection);
         else if (searching)
             updViewVisible(pbLoad, tvInformFragment, rvSelection);
         else if (shows)
-            updViewVisible(rvSelection, pbLoad, tvInformFragment);
+            updViewVisible(rvSelection, pbLoad, tvInformFragment);*/
+
+        btn = (Button) view.findViewById(R.id.btn1);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadHtmlImmediate = new LoadHtml(LoadHtml.LOAD_FOR_IMMEDIATE);
+                loadHtmlImmediate.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "s");
+                loadHtmlNew = new LoadHtmlNew();
+                loadHtmlNew.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "a");
+            }
+        });
 
         return view;
     }
 
     @Override
     public void onDestroy() {
-        if (loadHtmlImmediate != null)
-            loadHtmlImmediate.cancel(false);
-        if (loadHtmlDate != null)
-            loadHtmlDate.cancel(false);
-        if (loadHtmlDay != null)
-            loadHtmlDay.cancel(false);
+        stopThreads();
         super.onDestroy();
     }
 
     public void loadTrainsImmediate(String stationFrom, String stationTo){
+        updViewVisible(pbLoad, tvInformFragment, rvSelection);
+        if (loadHtmlImmediate != null) {
+            if (loadHtmlImmediate.getStatus() == AsyncTask.Status.RUNNING)
+                return;
+        }
         UrlBuilder urlBuilder = new UrlBuilder();
         String url = urlBuilder.setStationTo(stationTo)
                 .setStationFrom(stationFrom)
                 .createUrl();
-        updViewVisible(pbLoad, tvInformFragment, rvSelection);
         loadHtmlImmediate = new LoadHtml(LoadHtml.LOAD_FOR_IMMEDIATE);
         loadHtmlImmediate.execute(url);
     }
 
     public void loadTrainsForDay(String stationFrom, String stationTo){
+        if (loadHtmlDay != null) {
+            if (loadHtmlDay.getStatus() == AsyncTask.Status.RUNNING)
+                return;
+        }
         if (listTrainForDay == null) {
             if (loadHtmlImmediate != null){
-                if (loadHtmlImmediate.getStatus() != AsyncTask.Status.RUNNING) {
-                    UrlBuilder urlBuilder = new UrlBuilder();
-                    String url = urlBuilder.setStationTo(stationTo)
-                            .setStationFrom(stationFrom)
-                            .createUrl();
-                    updViewVisible(pbLoad, tvInformFragment, rvSelection);
-                    loadHtmlDay = new LoadHtml(LoadHtml.LOAD_FOR_DAY);
-                    loadHtmlDay.execute(url);
-                }
+                if (loadHtmlImmediate.getStatus() == AsyncTask.Status.RUNNING)
+                    return;
             }
+            UrlBuilder urlBuilder = new UrlBuilder();
+            String url = urlBuilder.setStationTo(stationTo)
+                    .setStationFrom(stationFrom)
+                    .createUrl();
+            updViewVisible(pbLoad, tvInformFragment, rvSelection);
+            loadHtmlDay = new LoadHtml(LoadHtml.LOAD_FOR_DAY);
+            loadHtmlDay.execute(url);
         }
         else {
             updViewVisible(rvSelection, pbLoad, tvInformFragment);
@@ -151,6 +172,15 @@ public class FragmentSelectionTrain extends Fragment {
         loadHtmlDate.execute(url);
     }
 
+    private void stopThreads(){
+        if (loadHtmlImmediate != null)
+            loadHtmlImmediate.cancel(false);
+        if (loadHtmlDate != null)
+            loadHtmlDate.cancel(false);
+        if (loadHtmlDay != null)
+            loadHtmlDay.cancel(false);
+    }
+
     private void updViewVisible(View viewVisible, View viewGone1, View viewGone2){
         viewVisible.setVisibility(View.VISIBLE);
         viewGone1.setVisibility(View.GONE);
@@ -165,9 +195,10 @@ public class FragmentSelectionTrain extends Fragment {
         listTrainForDate = null;
         listTrainForDay = null;
         listTrainForImmediate = null;
+        stopThreads();
     }
 
-    private class LoadHtml extends AsyncTask<String, Void, List<Map<String, String>>>{
+   /*  private class LoadHtml extends AsyncTask<String, Void, List<Map<String, String>>>{
         static final int LOAD_FOR_IMMEDIATE = 0;
         static final int LOAD_FOR_DAY = 1;
         static final int LOAD_FOR_DATE = 2;
@@ -181,7 +212,7 @@ public class FragmentSelectionTrain extends Fragment {
             this.flagLoad = flagLoad;
         }
 
-        LoadHtml(int flagLoad, String dayDeparture, String monthDeparture){
+       LoadHtml(int flagLoad, String dayDeparture, String monthDeparture){
             this.flagLoad = flagLoad;
             this.dayDeparture = dayDeparture;
             this.monthDeparture = monthDeparture;
@@ -211,7 +242,6 @@ public class FragmentSelectionTrain extends Fragment {
                         .referrer("http://www.google.com")
                         .timeout(5000)
                         .get();
-
                 HtmlHelper htmlHelper = new HtmlHelper();
                 trainsList = htmlHelper.htmlParse(doc);
             } catch (IOException e) {
@@ -261,5 +291,56 @@ public class FragmentSelectionTrain extends Fragment {
             nothing = false;
             searching = false;
         }
+    }*/
+
+    private class LoadHtml extends AsyncTask<String, Void, Void>{
+        static final int LOAD_FOR_IMMEDIATE = 0;
+        static final int LOAD_FOR_DAY = 1;
+        static final int LOAD_FOR_DATE = 2;
+
+        LoadHtml(int flagLoad){
+
+        }
+
+        LoadHtml(int flagLoad, String dayDeparture, String monthDeparture){
+
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            for (int i = 0; i < 3; i++){
+                Train train = Train.getTrainBuilder()
+                        .setPrice(params[0])
+                        .createTrain();
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Log.d("myLog", params[0]);
+            }
+            return null;
+        }
     }
+
+    private class LoadHtmlNew extends AsyncTask<String, Void, Void>{
+        LoadHtmlNew(){}
+
+        @Override
+        protected Void doInBackground(String... params) {
+            for (int i = 0; i < 3; i++){
+                Train train = Train.getTrainBuilder()
+                        .setPrice(params[0])
+                        .createTrain();
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Log.d("myLog", params[0]);
+            }
+            return null;
+        }
+    }
+
 }

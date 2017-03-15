@@ -23,7 +23,8 @@ public class HtmlHelper {
         Map<String, String> itemTrain;
         boolean first = true;
         Elements trainsElements = doc.body().getElementsByTag("tr");
-        for (Element train : trainsElements) {
+        for (Element trainElement : trainsElements) {
+            Train train;
             String timeBeforeDeparture;
             String timeDeparture;
             String timeArrival;
@@ -32,21 +33,21 @@ public class HtmlHelper {
             String travelTime;
             String price;
             itemTrain = new HashMap<>();
-            if (train.attr("class").equals("b-calendar__days-week"))
+            if (trainElement.attr("class").equals("b-calendar__days-week"))
                 break;
             if (first) {
                 first = false;
                 continue;
             }
-            timeDeparture = train.getElementsByAttributeValue("class", "b-routers__time b-routers__time_with-icon_false b-routers__time_type_departure")
+            timeDeparture = trainElement.getElementsByAttributeValue("class", "b-routers__time b-routers__time_with-icon_false b-routers__time_type_departure")
                     .text();
-            timeArrival = train.getElementsByAttributeValue("class", "b-routers__time b-routers__time_with-icon_false b-routers__time_type_arrival")
+            timeArrival = trainElement.getElementsByAttributeValue("class", "b-routers__time b-routers__time_with-icon_false b-routers__time_type_arrival")
                     .text();
-            specialTrain = train.getElementsByAttributeValue("class", "b-routers__title-special")
+            specialTrain = trainElement.getElementsByAttributeValue("class", "b-routers__title-special")
                     .text();
-            station = train.getElementsByTag("a").text();
-            travelTime = train.getElementsByAttributeValue("class", "b-routers__time b-routers__time_type_in-path").text();
-            price = train.getElementsByAttributeValue("class", "b-routers__item b-routers__item_type_last-column")
+            station = trainElement.getElementsByTag("a").text();
+            travelTime = trainElement.getElementsByAttributeValue("class", "b-routers__time b-routers__time_type_in-path").text();
+            price = trainElement.getElementsByAttributeValue("class", "b-routers__item b-routers__item_type_last-column")
                     .text();
             itemTrain.put("timeDeparture", timeDeparture);
             itemTrain.put("timeArrival", timeArrival);
@@ -57,10 +58,21 @@ public class HtmlHelper {
             if (price.equals("ушёл") || price.equals("")) {
                 timeBeforeDeparture = "";
             } else {
-                String s = train.attr("data-bem");
+                String s = trainElement.attr("data-bem");
                 String[] token = s.split("\"");
                 timeBeforeDeparture = token[39] + " " + token[41];
             }
+
+            train = Train.getTrainBuilder()
+                    .setTimeDeparture(timeDeparture)
+                    .setTimeArrival(timeArrival)
+                    .setSpecialTrain(specialTrain)
+                    .setStations(station)
+                    .setTravelTime(travelTime)
+                    .setPrice(price)
+                    .setTimeBeforeDeparture(timeBeforeDeparture)
+                    .createTrain();
+
             itemTrain.put("timeBeforeDeparture", timeBeforeDeparture);
             trainsList.add(itemTrain);
         }
