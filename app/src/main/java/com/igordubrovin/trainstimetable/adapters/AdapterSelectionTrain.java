@@ -7,9 +7,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.igordubrovin.trainstimetable.R;
+import com.igordubrovin.trainstimetable.utils.Train;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Игорь on 21.02.2017.
@@ -17,9 +17,9 @@ import java.util.Map;
 
 public class AdapterSelectionTrain extends RecyclerView.Adapter<AdapterSelectionTrain.SelectionViewHolder> {
 
-    private List<Map<String, String>> listData;
+    private List<Train> listData;
 
-    public void swapData(List<Map<String, String>> listData){
+    public void swapData(List<Train> listData){
         this.listData = listData;
         this.notifyDataSetChanged();
     }
@@ -32,7 +32,7 @@ public class AdapterSelectionTrain extends RecyclerView.Adapter<AdapterSelection
 
     @Override
     public void onBindViewHolder(SelectionViewHolder holder, int position) {
-        holder.tvSelectionTrain.setText(listData.get(position).get("station"));
+        holder.tvSelectionTrain.setText(listData.get(position).getStations());
     }
 
     @Override

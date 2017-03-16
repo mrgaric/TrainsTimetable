@@ -1,6 +1,5 @@
 package com.igordubrovin.trainstimetable.fragments;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -28,18 +27,19 @@ public abstract class FragmentTrains <LoaderTrains extends LoaderHtml> extends F
     private TextView tvInformFragment;
     private RecyclerView rvSelection;
     private AdapterSelectionTrain adapterRvSelection;
-    private boolean infoFlag;
 
     protected LoaderTrains loaderTrains;
     protected UrlDirector urlDirector = new UrlDirector();
     protected String stationFrom;
     protected String stationTo;
 
+    boolean dataDownloadStarted;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         adapterRvSelection = new AdapterSelectionTrain();
-        infoFlag = false;
+        dataDownloadStarted = false;
         this.setRetainInstance(true);
     }
 
@@ -56,6 +56,8 @@ public abstract class FragmentTrains <LoaderTrains extends LoaderHtml> extends F
         rvSelection.setLayoutManager(linearLayoutManager);
         rvSelection.setAdapter(adapterRvSelection);
 
+        setViewVisible();
+
         return view;
     }
 
@@ -71,22 +73,22 @@ public abstract class FragmentTrains <LoaderTrains extends LoaderHtml> extends F
         this.stationTo = stationTo;
     }
 
-    protected void choiceView(){
-        if (!infoFlag){
-            tvInformFragment.setVisibility(View.VISIBLE);
-            rvSelection.setVisibility(View.GONE);
-        } else {
+    protected void setViewVisible(){
+        if (dataDownloadStarted){
             tvInformFragment.setVisibility(View.GONE);
             rvSelection.setVisibility(View.VISIBLE);
+        } else {
+            tvInformFragment.setVisibility(View.VISIBLE);
+            rvSelection.setVisibility(View.GONE);
         }
     }
 
-    protected void trainsLoaded(List<Train> trains){
-        adapterRvSelection.swapData(trains);
+    protected void setDataDownloadStarted(boolean flag){
+        dataDownloadStarted = flag;
     }
 
-    protected void setInfoFlag(boolean state){
-        infoFlag = state;
+    protected void updateAdapter(List<Train> trains){
+        adapterRvSelection.swapData(trains);
     }
 
     abstract public void startLoaderTrains();
