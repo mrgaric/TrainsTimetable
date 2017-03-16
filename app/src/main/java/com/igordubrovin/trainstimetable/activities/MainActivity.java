@@ -8,9 +8,11 @@ import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -20,8 +22,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.igordubrovin.trainstimetable.R;
+import com.igordubrovin.trainstimetable.adapters.ViewPagerAdapter;
 import com.igordubrovin.trainstimetable.dialogs.DateDialogFragment;
 import com.igordubrovin.trainstimetable.fragments.FragmentLiked;
+import com.igordubrovin.trainstimetable.fragments.FragmentRoutes;
 import com.igordubrovin.trainstimetable.fragments.FragmentSelectionTrain;
 import com.igordubrovin.trainstimetable.utils.CPLikedHelper;
 import com.igordubrovin.trainstimetable.utils.ConstProject;
@@ -63,6 +67,10 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
 
     AppBarLayout appBarLayout;
 
+    ViewPager vpContainer;
+    FrameLayout fragmentContainer;
+    TabLayout tabLayoutToolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,6 +78,25 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
 
         toolbar = (Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+
+
+        vpContainer = (ViewPager) findViewById(R.id.vpContainer);
+        fragmentContainer = (FrameLayout) findViewById(R.id.fragmentContainer);
+
+        fragmentContainer.setVisibility(View.GONE);
+
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        adapter.addFragment(new FragmentRoutes(), "1");
+        adapter.addFragment(new FragmentRoutes(), "2");
+        adapter.addFragment(new FragmentRoutes(), "3");
+        vpContainer.setAdapter(adapter);
+        vpContainer.setOffscreenPageLimit(3);
+        tabLayoutToolbar = (TabLayout) findViewById(R.id.tabToolbar);
+        tabLayoutToolbar.setupWithViewPager(vpContainer);
+
+
+
 
         llSelection = (LinearLayout)findViewById(R.id.llSelection);
         llSelection.setVisibility(View.GONE);

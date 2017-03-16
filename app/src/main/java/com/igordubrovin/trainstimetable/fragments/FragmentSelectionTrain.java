@@ -15,11 +15,8 @@ import android.widget.TextView;
 
 import com.igordubrovin.trainstimetable.R;
 import com.igordubrovin.trainstimetable.adapters.AdapterSelectionTrain;
-import com.igordubrovin.trainstimetable.utils.ConstProject;
 import com.igordubrovin.trainstimetable.utils.HtmlHelper;
-import com.igordubrovin.trainstimetable.utils.UrlAddress;
-import com.igordubrovin.trainstimetable.utils.UrlBuilderDataDeparture;
-import com.igordubrovin.trainstimetable.utils.UrlBuilderOnlyStation;
+import com.igordubrovin.trainstimetable.utils.Train;
 import com.igordubrovin.trainstimetable.utils.UrlDirector;
 
 import org.jsoup.Jsoup;
@@ -27,7 +24,6 @@ import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,8 +50,6 @@ public class FragmentSelectionTrain extends Fragment {
     List<Map<String, String>> listTrainForImmediate;
     List<Map<String, String>> listTrainForDay;
     List<Map<String, String>> listTrainForDate;
-    UrlBuilderOnlyStation urlBuilderOnlyStation = new UrlBuilderOnlyStation();
-    UrlBuilderDataDeparture urlBuilderDataDeparture = new UrlBuilderDataDeparture();
     UrlDirector urlDirector = new UrlDirector();
     private int choiceTimetable;
 
@@ -128,8 +122,8 @@ public class FragmentSelectionTrain extends Fragment {
             if (loadHtmlImmediate.getStatus() == AsyncTask.Status.RUNNING)
                 return;
         }
-        String url = urlDirector.setUrlBuilder(urlBuilderOnlyStation)
-                .createUrlAddress(stationFrom, stationTo)
+        String url = urlDirector
+                .createUrlAddressOnlyStation(stationFrom, stationTo)
                 .getUrlAddress()
                 .getUrl();
         loadHtmlImmediate = new LoadHtml(LoadHtml.LOAD_FOR_IMMEDIATE);
@@ -146,8 +140,8 @@ public class FragmentSelectionTrain extends Fragment {
                 if (loadHtmlImmediate.getStatus() == AsyncTask.Status.RUNNING)
                     return;
             }
-            String url = urlDirector.setUrlBuilder(urlBuilderOnlyStation)
-                    .createUrlAddress(stationFrom, stationTo)
+            String url = urlDirector
+                    .createUrlAddressOnlyStation(stationFrom, stationTo)
                     .getUrlAddress()
                     .getUrl();
             updViewVisible(pbLoad, tvInformFragment, rvSelection);
@@ -170,8 +164,8 @@ public class FragmentSelectionTrain extends Fragment {
                 return;
             }
         }
-        String url = urlDirector.setUrlBuilder(urlBuilderDataDeparture)
-                .createUrlAddress(stationFrom, stationTo, dayDeparture, monthDeparture)
+        String url = urlDirector
+                .createUrlAddressDateDeparture(stationFrom, stationTo, dayDeparture, monthDeparture)
                 .getUrlAddress()
                 .getUrl();
         updViewVisible(pbLoad, tvInformFragment, rvSelection);
@@ -205,7 +199,7 @@ public class FragmentSelectionTrain extends Fragment {
         stopThreads();
     }
 
-     private class LoadHtml extends AsyncTask<String, Void, List<Map<String, String>>>{
+     private class LoadHtml extends AsyncTask<String, Void, List<Train>>{
         static final int LOAD_FOR_IMMEDIATE = 0;
         static final int LOAD_FOR_DAY = 1;
         static final int LOAD_FOR_DATE = 2;
@@ -219,7 +213,7 @@ public class FragmentSelectionTrain extends Fragment {
             this.flagLoad = flagLoad;
         }
 
-       LoadHtml(int flagLoad, String dayDeparture, String monthDeparture){
+        LoadHtml(int flagLoad, String dayDeparture, String monthDeparture){
             this.flagLoad = flagLoad;
             this.dayDeparture = dayDeparture;
             this.monthDeparture = monthDeparture;
@@ -232,12 +226,11 @@ public class FragmentSelectionTrain extends Fragment {
             nothing = false;
             shows = false;
         }
-
         @Override
-        protected List<Map<String, String>> doInBackground(String... params) {
+        protected List<Train> doInBackground(String... params) {
             String url;
             Document doc;
-            List<Map<String, String>> trainsList = new ArrayList<>();
+            List<Train> trainsList = new ArrayList<>();
             if (params != null) {
                 url = params[0];
             } else {
@@ -251,6 +244,7 @@ public class FragmentSelectionTrain extends Fragment {
                         .get();
                 HtmlHelper htmlHelper = new HtmlHelper();
                 trainsList = htmlHelper.htmlParse(doc);
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -258,8 +252,8 @@ public class FragmentSelectionTrain extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(List<Map<String, String>> maps) {
-            super.onPostExecute(maps);
+        protected void onPostExecute(List<Train> trains) {
+            /*super.onPostExecute(maps);
             switch (flagLoad) {
                 case LOAD_FOR_IMMEDIATE:
                     if (choiceTimetable == ConstProject.CHOICE_FOR_IMMEDIATE) {
@@ -296,7 +290,7 @@ public class FragmentSelectionTrain extends Fragment {
             }
             shows = true;
             nothing = false;
-            searching = false;
+            searching = false;*/
         }
     }
 

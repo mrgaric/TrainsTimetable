@@ -5,13 +5,15 @@ package com.igordubrovin.trainstimetable.utils;
  */
 
 public class UrlBuilderDataDeparture extends UrlAddress.UrlBuilder {
+
     private String dayDeparture;
     private String monthDeparture;
 
     @Override
-    public UrlAddress createUrlAddress() {
-        return new UrlAddress("https://t.rasp.yandex.ru/search/suburban/?toName=" + stationTo+ "&fromName=" + stationFrom
-                + "&when=" + dayDeparture + "+" + monthDeparture);
+    UrlAddress.UrlBuilder buildUrl() {
+        url = "https://t.rasp.yandex.ru/search/suburban/?toName=" + stationTo+ "&fromName=" + stationFrom
+                + "&when=" + dayDeparture + "+" + monthDeparture;
+        return null;
     }
 
     UrlAddress.UrlBuilder setDateDeparture(String day, String month){

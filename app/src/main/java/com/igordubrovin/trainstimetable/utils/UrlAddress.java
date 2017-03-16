@@ -7,7 +7,7 @@ package com.igordubrovin.trainstimetable.utils;
 public class UrlAddress {
     private final String url;
 
-    UrlAddress(String url){
+    private UrlAddress(String url){
         this.url = url;
     }
 
@@ -19,18 +19,22 @@ public class UrlAddress {
 
         protected String stationTo;
         protected String stationFrom;
+        protected String url;
 
-        public UrlBuilder setStationFrom(String stationFrom){
+        UrlBuilder setStationFrom(String stationFrom){
             this.stationFrom = stationFrom;
             return this;
         }
 
-        public UrlBuilder setStationTo(String stationTo){
+        UrlBuilder setStationTo(String stationTo){
             this.stationTo = stationTo;
             return this;
         }
 
-        public abstract UrlAddress createUrlAddress();
-    }
+        UrlAddress createNewUrlAddress(){
+            return new UrlAddress(url);
+        }
 
+        abstract UrlBuilder buildUrl();
+    }
 }

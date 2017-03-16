@@ -6,7 +6,8 @@ package com.igordubrovin.trainstimetable.utils;
 
 public class UrlBuilderOnlyStation extends UrlAddress.UrlBuilder {
     @Override
-    public UrlAddress createUrlAddress() {
-        return new UrlAddress("https://t.rasp.yandex.ru/search/suburban/?toName=" + stationTo+ "&fromName=" + stationFrom);
+    UrlAddress.UrlBuilder buildUrl() {
+        url = "https://t.rasp.yandex.ru/search/suburban/?toName=" + stationTo+ "&fromName=" + stationFrom;
+        return null;
     }
 }

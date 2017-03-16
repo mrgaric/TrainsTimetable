@@ -5,40 +5,26 @@ package com.igordubrovin.trainstimetable.utils;
  */
 
 public class UrlDirector {
-    protected UrlAddress.UrlBuilder urlBuilder;
-    protected UrlAddress urlAddress;
+        private UrlAddress urlAddress;
 
-    public UrlDirector setUrlBuilder(UrlAddress.UrlBuilder urlBuilder){
-        this.urlBuilder = urlBuilder;
+    public UrlDirector createUrlAddressOnlyStation(String stationFrom, String stationTo){
+        UrlBuilderOnlyStation urlBuilder = new UrlBuilderOnlyStation();
+        urlAddress = urlBuilder.setStationFrom(stationFrom)
+                .setStationTo(stationTo)
+                .buildUrl()
+                .createNewUrlAddress();
         return this;
     }
 
-    public UrlDirector createUrlAddress(String stationFrom, String stationTo){
-        if (urlBuilder != null) {
-            if (urlBuilder instanceof UrlBuilderOnlyStation) {
-                urlAddress = urlBuilder.setStationFrom(stationFrom)
-                        .setStationTo(stationTo)
-                        .createUrlAddress();
-                return this;
-            }
-            else throw new ClassCastException("UrlBuilder");
-        }
-        else throw new NullPointerException("UrlBuilder");
-    }
-
-    public UrlDirector createUrlAddress(String stationFrom, String stationTo, String day, String month){
-        if (urlBuilder != null) {
-            if (urlBuilder instanceof UrlBuilderDataDeparture) {
-                urlAddress = ((UrlBuilderDataDeparture) urlBuilder)
-                        .setDateDeparture(day, month)
-                        .setStationFrom(stationFrom)
-                        .setStationTo(stationTo)
-                        .createUrlAddress();
-                return this;
-            }
-            else throw new ClassCastException("UrlBuilder");
-        }
-        else throw new NullPointerException("UrlBuilder");
+    public UrlDirector createUrlAddressDateDeparture(String stationFrom, String stationTo, String day, String month){
+        UrlBuilderDataDeparture urlBuilder = new UrlBuilderDataDeparture();
+        urlAddress = urlBuilder
+                .setDateDeparture(day, month)
+                .setStationFrom(stationFrom)
+                .setStationTo(stationTo)
+                .buildUrl()
+                .createNewUrlAddress();
+        return this;
     }
 
     public UrlAddress getUrlAddress(){
