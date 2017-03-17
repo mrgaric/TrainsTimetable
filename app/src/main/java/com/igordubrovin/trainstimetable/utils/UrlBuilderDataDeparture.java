@@ -13,7 +13,7 @@ public class UrlBuilderDataDeparture extends UrlAddress.UrlBuilder {
     UrlAddress.UrlBuilder buildUrl() {
         url = "https://t.rasp.yandex.ru/search/suburban/?toName=" + stationTo+ "&fromName=" + stationFrom
                 + "&when=" + dayDeparture + "+" + monthDeparture;
-        return null;
+        return this;
     }
 
     UrlAddress.UrlBuilder setDateDeparture(String day, String month){

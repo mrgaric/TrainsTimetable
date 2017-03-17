@@ -25,8 +25,9 @@ import com.igordubrovin.trainstimetable.R;
 import com.igordubrovin.trainstimetable.adapters.ViewPagerAdapter;
 import com.igordubrovin.trainstimetable.dialogs.DateDialogFragment;
 import com.igordubrovin.trainstimetable.fragments.FragmentLiked;
-import com.igordubrovin.trainstimetable.fragments.FragmentRoutes;
 import com.igordubrovin.trainstimetable.fragments.FragmentSelectionTrain;
+import com.igordubrovin.trainstimetable.fragments.FragmentTrainsDay;
+import com.igordubrovin.trainstimetable.fragments.FragmentTrainsImmediate;
 import com.igordubrovin.trainstimetable.utils.CPLikedHelper;
 import com.igordubrovin.trainstimetable.utils.ConstProject;
 import com.igordubrovin.trainstimetable.utils.ContentProviderLikedDB;
@@ -87,11 +88,11 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
         fragmentContainer.setVisibility(View.GONE);
 
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new FragmentRoutes(), "1");
-        adapter.addFragment(new FragmentRoutes(), "2");
-        adapter.addFragment(new FragmentRoutes(), "3");
+        adapter.addFragment(new FragmentTrainsImmediate(), "1");
+        adapter.addFragment(new FragmentTrainsDay(), "2");
+       // adapter.addFragment(new FragmentTrainsDate(), "3");
         vpContainer.setAdapter(adapter);
-        vpContainer.setOffscreenPageLimit(3);
+      //  vpContainer.setOffscreenPageLimit(3);
         tabLayoutToolbar = (TabLayout) findViewById(R.id.tabToolbar);
         tabLayoutToolbar.setupWithViewPager(vpContainer);
 

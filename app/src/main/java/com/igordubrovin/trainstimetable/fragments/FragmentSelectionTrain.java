@@ -150,7 +150,7 @@ public class FragmentSelectionTrain extends Fragment {
         }
         else {
             updViewVisible(rvSelection, pbLoad, tvInformFragment);
-            adapter.swapData(listTrainForDay);
+         //   adapter.swapData(listTrainForDay);
         }
     }
 
@@ -160,7 +160,7 @@ public class FragmentSelectionTrain extends Fragment {
             if (listTrainForDate.get(sizeListTrainForDate).get(DAY_DEPARTURE).equals(dayDeparture)
                     && listTrainForDate.get(sizeListTrainForDate).get(MONTH_DEPARTURE).equals(monthDeparture)){
                 updViewVisible(rvSelection, pbLoad, tvInformFragment);
-                adapter.swapData(listTrainForDate);
+            //    adapter.swapData(listTrainForDate);
                 return;
             }
         }

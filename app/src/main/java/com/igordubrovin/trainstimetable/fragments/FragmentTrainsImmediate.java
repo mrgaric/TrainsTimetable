@@ -1,12 +1,7 @@
 package com.igordubrovin.trainstimetable.fragments;
 
-import android.os.AsyncTask;
-
-import com.igordubrovin.trainstimetable.utils.HtmlHelper;
-import com.igordubrovin.trainstimetable.utils.LoaderHtml;
 import com.igordubrovin.trainstimetable.utils.Train;
-
-import org.jsoup.nodes.Document;
+import com.igordubrovin.trainstimetable.utils.UrlDirector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,43 +11,32 @@ import java.util.List;
  */
 
 public class FragmentTrainsImmediate extends FragmentTrains<FragmentTrainsImmediate.LoaderTrains> {
-
     @Override
-    public void startLoaderTrains() {
-        if (loaderTrains != null) {
-            if (loaderTrains.getStatus() == AsyncTask.Status.RUNNING)
-                return;
-        }
-        String url = urlDirector
+    protected String getUrl() {
+        UrlDirector urlDirector = new UrlDirector();
+        return urlDirector
                 .createUrlAddressOnlyStation(stationFrom, stationTo)
                 .getUrlAddress()
                 .getUrl();
-        loaderTrains = new LoaderTrains();
-        loaderTrains.execute(url);
     }
 
-    class LoaderTrains extends LoaderHtml {
+    @Override
+    protected LoaderTrains createLoader() {
+        return new LoaderTrains();
+    }
 
-        @Override
-        protected void onPreExecute() {
-            setDataDownloadStarted(true);
-            setViewVisible();
-            super.onPreExecute();
-        }
 
+    class LoaderTrains extends FragmentTrains.LoaderHtml {
         @Override
-        protected void onPostExecute(Document document) {
-            super.onPostExecute(document);
-            HtmlHelper htmlHelper = new HtmlHelper();
-            List<Train> trainsList = new ArrayList<>();
-            trainsList = htmlHelper.htmlParse(document);
-            for (int i = 0; i < trainsList.size() - 1; i++) {
-                if (!trainsList.get(i).getTimeBeforeDeparture().equals("")) {
-                    trainsList.subList(0, i).clear();
+        protected void onPostParse(List<Train> trains) {
+            for (int i = 0; i < trains.size() - 1; i++) {
+                if (!trains.get(i).getTimeBeforeDeparture().equals("")) {
+                    trains.subList(0, i).clear();
+                    trainList = new ArrayList<>(trains);
                     break;
                 }
             }
-            updateAdapter(trainsList);
+            updateAdapter(trainList);
         }
     }
 }

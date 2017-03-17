@@ -6,12 +6,19 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
- * Created by Игорь on 16.03.2017.
+ * Created by Игорь on 17.03.2017.
  */
 
-public class LoaderHtml extends AsyncTask<String, Void, Document>{
+public abstract class LoaderHtml extends AsyncTask<String, Void, Document> {
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+
+    }
 
     @Override
     protected Document doInBackground(String... params) {
@@ -33,4 +40,13 @@ public class LoaderHtml extends AsyncTask<String, Void, Document>{
         }
         return doc;
     }
+
+    @Override
+    protected void onPostExecute(Document document) {
+        super.onPostExecute(document);
+        onPostParse(new HtmlHelper().htmlParse(document));
+    }
+
+    protected abstract void onPostParse(List<Train> trainsList);
+
 }

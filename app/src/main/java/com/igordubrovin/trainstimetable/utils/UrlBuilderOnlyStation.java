@@ -8,6 +8,6 @@ public class UrlBuilderOnlyStation extends UrlAddress.UrlBuilder {
     @Override
     UrlAddress.UrlBuilder buildUrl() {
         url = "https://t.rasp.yandex.ru/search/suburban/?toName=" + stationTo+ "&fromName=" + stationFrom;
-        return null;
+        return this;
     }
 }
