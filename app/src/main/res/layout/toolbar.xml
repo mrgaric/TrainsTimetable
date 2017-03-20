@@ -36,52 +36,12 @@
         android:id="@+id/toolbarItemContainer">
     </FrameLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:id="@+id/llSelection"
-        android:layout_marginTop="15dp">
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="ближайшие"
-            android:gravity="center"
-            android:id="@+id/tvImmediate"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
-        <View
-            android:layout_width="1dp"
-            android:layout_height="21dp"
-            android:background="@color/colorPrimaryDark"
-            android:layout_gravity="bottom"/>
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="на день"
-            android:gravity="center"
-            android:id="@+id/tvForDay"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
-        <View
-            android:layout_width="1dp"
-            android:layout_height="21dp"
-            android:background="@color/colorPrimaryDark"
-            android:layout_gravity="bottom"/>
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="выбор даты"
-            android:gravity="center"
-            android:id="@+id/tvChoiceDate"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
-    </LinearLayout>
     <android.support.design.widget.TabLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/tabToolbar"
         app:tabGravity="fill"
-        app:tabMode="fixed">
+        app:tabMode="fixed"
+        android:visibility="gone">
     </android.support.design.widget.TabLayout>
 </android.support.design.widget.AppBarLayout>

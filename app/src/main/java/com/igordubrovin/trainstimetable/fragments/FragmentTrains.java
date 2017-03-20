@@ -35,8 +35,8 @@ public abstract class FragmentTrains <T extends FragmentTrains.LoaderHtml> exten
     private AdapterSelectionTrain adapterRvSelection;
 
     protected T loaderTrains;
-    protected String stationFrom;
-    protected String stationTo;
+    protected static String stationFrom;
+    protected static String stationTo;
 
     protected List<Train> trainList;
 
@@ -53,7 +53,7 @@ public abstract class FragmentTrains <T extends FragmentTrains.LoaderHtml> exten
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_selection_train, container, false);
+        View view = inflater.inflate(R.layout.fragment_trains, container, false);
 
         tvInformFragment = (TextView)view.findViewById(R.id.tvInformFragment);
 
@@ -99,12 +99,12 @@ public abstract class FragmentTrains <T extends FragmentTrains.LoaderHtml> exten
 
     // Вспомогательные методы
 
-    public void setStationFrom(String stationFrom) {
-        this.stationFrom = stationFrom;
+    public static void setStationFrom(String station) {
+        stationFrom = station;
     }
 
-    public void setStationTo(String stationTo) {
-        this.stationTo = stationTo;
+    public static void setStationTo(String station) {
+        stationTo = station;
     }
 
     public void startLoaderTrains(){

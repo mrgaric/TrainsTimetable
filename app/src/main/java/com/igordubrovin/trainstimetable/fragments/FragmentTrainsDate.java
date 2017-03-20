@@ -1,5 +1,12 @@
 package com.igordubrovin.trainstimetable.fragments;
 
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
 import com.igordubrovin.trainstimetable.utils.Train;
 import com.igordubrovin.trainstimetable.utils.UrlDirector;
 
@@ -12,11 +19,30 @@ import java.util.List;
 
 public class FragmentTrainsDate extends FragmentTrains<FragmentTrainsDate.LoaderTrains> {
 
+    private FloatingActionButton fabCalendar;
+
     private String dayDeparture;
     private String monthDeparture;
 
-    private String newDayDeparture;
-    private String newMonthDeparture;
+    private static String newDayDeparture;
+    private static String newMonthDeparture;
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+
+        /*ConstraintLayout layout = (ConstraintLayout) view.findViewById(R.id.constrain_layout_train_fragment);
+        ConstraintSet set = new ConstraintSet();
+        fabCalendar = new FloatingActionButton(getContext());
+        layout.addView(fabCalendar, 0);
+        set.clone(layout);
+        set.connect(fabCalendar.getId(), ConstraintSet.TOP, layout.getId(), ConstraintSet.TOP, 8);
+        set.connect(fabCalendar.getId(), ConstraintSet.RIGHT, layout.getId(), ConstraintSet.RIGHT, 8);
+        set.applyTo(layout);*/
+
+        return view;
+    }
 
     @Override
     protected LoaderTrains createLoader() {
@@ -41,12 +67,12 @@ public class FragmentTrainsDate extends FragmentTrains<FragmentTrainsDate.Loader
                 .getUrl();
     }
 
-    public void setNewDayDeparture(String newDayDeparture) {
-        this.newDayDeparture = newDayDeparture;
+    public static void setNewDayDeparture(String dayDeparture) {
+        newDayDeparture = dayDeparture;
     }
 
-    public void setNewMonthDeparture(String newMonthDeparture) {
-        this.newMonthDeparture = newMonthDeparture;
+    public static void setNewMonthDeparture(String monthDeparture) {
+        newMonthDeparture = monthDeparture;
     }
 
     class LoaderTrains extends FragmentTrains.LoaderHtml {

@@ -1,6 +1,85 @@
 package com.igordubrovin.trainstimetable.fragments;
 
 
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import com.igordubrovin.trainstimetable.Interface.OnChangeTabListener;
+import com.igordubrovin.trainstimetable.R;
+import com.igordubrovin.trainstimetable.adapters.ViewPagerAdapter;
+
+public class FragmentSelectionTrain extends Fragment {
+
+    private OnChangeTabListener tabChangeListener;
+
+    private ViewPagerAdapter adapter;
+    private ViewPager vpContainer;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        adapter = new ViewPagerAdapter(getFragmentManager());
+        adapter.addFragment(new FragmentTrainsImmediate(), "1");
+        adapter.addFragment(new FragmentTrainsDay(), "2");
+        adapter.addFragment(new FragmentTrainsDate(), "3");
+        super.onCreate(savedInstanceState);
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_selection_train, container, false);
+        vpContainer = (ViewPager) view.findViewById(R.id.vpContainer);
+        vpContainer.setAdapter(adapter);
+        vpContainer.setOffscreenPageLimit(3);
+        vpContainer.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (tabChangeListener != null)
+                    tabChangeListener.onChangeTab(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        return view;
+    }
+
+    public static void setStations(String stationFrom, String stationTo){
+        FragmentTrains.setStationFrom(stationFrom);
+        FragmentTrains.setStationTo(stationTo);
+    }
+
+    public static void setDateDeparture(String day, String month){
+        FragmentTrainsDate.setNewDayDeparture(day);
+        FragmentTrainsDate.setNewMonthDeparture(month);
+    }
+
+    public ViewPager getVpContainer() {
+        return vpContainer;
+    }
+
+    public void setOnChangeTebListener(OnChangeTabListener l){
+        tabChangeListener = l;
+    };
+}
+
+
+/*
+
+
+
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -27,9 +106,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+*/
 /**
  * Created by Игорь on 21.02.2017.
- */
+ *//*
+
 
 public class FragmentSelectionTrain extends Fragment {
 
@@ -63,16 +144,20 @@ public class FragmentSelectionTrain extends Fragment {
         nothing = true;
         shows = false;
         searching = false;
-        /*listTrainForImmediate = new ArrayList<>();
+        */
+/*listTrainForImmediate = new ArrayList<>();
         listTrainForDay = new ArrayList<>();
-        listTrainForDate = new ArrayList<>();*/
+        listTrainForDate = new ArrayList<>();*//*
+
         this.setRetainInstance(true);
 
 
-        /*loadHtmlImmediate = new LoadHtml(LoadHtml.LOAD_FOR_IMMEDIATE);
+        */
+/*loadHtmlImmediate = new LoadHtml(LoadHtml.LOAD_FOR_IMMEDIATE);
         loadHtmlImmediate.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "s");
         loadHtmlNew = new LoadHtmlNew();
-        loadHtmlNew.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "a");*/
+        loadHtmlNew.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "a");*//*
+
     }
 
     @Nullable
@@ -82,21 +167,23 @@ public class FragmentSelectionTrain extends Fragment {
         View view = inflater.inflate(R.layout.fragment_selection_train, container, false);
 
         tvInformFragment = (TextView)view.findViewById(R.id.tvInformFragment);
-        pbLoad = (ProgressBar)view.findViewById(R.id.pbLoad);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         rvSelection = (RecyclerView) view.findViewById(R.id.rvSelection);
         rvSelection.setLayoutManager(linearLayoutManager);
         rvSelection.setAdapter(adapter);
 
-        if (nothing)
+        */
+/*if (nothing)
             updViewVisible(tvInformFragment, pbLoad, rvSelection);
         else if (searching)
             updViewVisible(pbLoad, tvInformFragment, rvSelection);
         else if (shows)
-            updViewVisible(rvSelection, pbLoad, tvInformFragment);
+            updViewVisible(rvSelection, pbLoad, tvInformFragment);*//*
 
-        /*btn = (Button) view.findViewById(R.id.btn1);
+
+        */
+/*btn = (Button) view.findViewById(R.id.btn1);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -105,7 +192,8 @@ public class FragmentSelectionTrain extends Fragment {
                 loadHtmlNew = new LoadHtmlNew();
                 loadHtmlNew.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "a");
             }
-        });*/
+        });*//*
+
 
         return view;
     }
@@ -117,7 +205,7 @@ public class FragmentSelectionTrain extends Fragment {
     }
 
     public void loadTrainsImmediate(String stationFrom, String stationTo){
-        updViewVisible(pbLoad, tvInformFragment, rvSelection);
+        //updViewVisible(pbLoad, tvInformFragment, rvSelection);
         if (loadHtmlImmediate != null) {
             if (loadHtmlImmediate.getStatus() == AsyncTask.Status.RUNNING)
                 return;
@@ -144,12 +232,12 @@ public class FragmentSelectionTrain extends Fragment {
                     .createUrlAddressOnlyStation(stationFrom, stationTo)
                     .getUrlAddress()
                     .getUrl();
-            updViewVisible(pbLoad, tvInformFragment, rvSelection);
+           // updViewVisible(pbLoad, tvInformFragment, rvSelection);
             loadHtmlDay = new LoadHtml(LoadHtml.LOAD_FOR_DAY);
             loadHtmlDay.execute(url);
         }
         else {
-            updViewVisible(rvSelection, pbLoad, tvInformFragment);
+           // updViewVisible(rvSelection, pbLoad, tvInformFragment);
          //   adapter.swapData(listTrainForDay);
         }
     }
@@ -159,7 +247,7 @@ public class FragmentSelectionTrain extends Fragment {
             int sizeListTrainForDate = listTrainForDate.size() - 1;
             if (listTrainForDate.get(sizeListTrainForDate).get(DAY_DEPARTURE).equals(dayDeparture)
                     && listTrainForDate.get(sizeListTrainForDate).get(MONTH_DEPARTURE).equals(monthDeparture)){
-                updViewVisible(rvSelection, pbLoad, tvInformFragment);
+                //updViewVisible(rvSelection, pbLoad, tvInformFragment);
             //    adapter.swapData(listTrainForDate);
                 return;
             }
@@ -168,7 +256,7 @@ public class FragmentSelectionTrain extends Fragment {
                 .createUrlAddressDateDeparture(stationFrom, stationTo, dayDeparture, monthDeparture)
                 .getUrlAddress()
                 .getUrl();
-        updViewVisible(pbLoad, tvInformFragment, rvSelection);
+      //  updViewVisible(pbLoad, tvInformFragment, rvSelection);
         loadHtmlDate = new LoadHtml(LoadHtml.LOAD_FOR_DATE, dayDeparture, monthDeparture);
         loadHtmlDate.execute(url);
     }
@@ -182,11 +270,13 @@ public class FragmentSelectionTrain extends Fragment {
             loadHtmlDay.cancel(false);
     }
 
-    private void updViewVisible(View viewVisible, View viewGone1, View viewGone2){
+    */
+/*private void updViewVisible(View viewVisible, View viewGone1, View viewGone2){
         viewVisible.setVisibility(View.VISIBLE);
         viewGone1.setVisibility(View.GONE);
         viewGone2.setVisibility(View.GONE);
-    }
+    }*//*
+
 
     public void setChoiceTimetable(int choiceTimetable){
         this.choiceTimetable = choiceTimetable;
@@ -253,7 +343,8 @@ public class FragmentSelectionTrain extends Fragment {
 
         @Override
         protected void onPostExecute(List<Train> trains) {
-            /*super.onPostExecute(maps);
+            */
+/*super.onPostExecute(maps);
             switch (flagLoad) {
                 case LOAD_FOR_IMMEDIATE:
                     if (choiceTimetable == ConstProject.CHOICE_FOR_IMMEDIATE) {
@@ -290,11 +381,13 @@ public class FragmentSelectionTrain extends Fragment {
             }
             shows = true;
             nothing = false;
-            searching = false;*/
+            searching = false;*//*
+
         }
     }
 
-    /*private class LoadHtml extends AsyncTask<String, Void, Void>{
+    */
+/*private class LoadHtml extends AsyncTask<String, Void, Void>{
         static final int LOAD_FOR_IMMEDIATE = 0;
         static final int LOAD_FOR_DAY = 1;
         static final int LOAD_FOR_DATE = 2;
@@ -328,6 +421,8 @@ public class FragmentSelectionTrain extends Fragment {
                         .createTrain();
             return null;
         }
-    }*/
+    }*//*
+
 
 }
+*/
