@@ -19,22 +19,26 @@ public class FragmentSelectionTrain extends Fragment {
 
     private ViewPagerAdapter adapter;
     private ViewPager vpContainer;
+    View view;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        adapter = new ViewPagerAdapter(getFragmentManager());
+        adapter = new ViewPagerAdapter(getChildFragmentManager());
         adapter.addFragment(new FragmentTrainsImmediate(), "1");
         adapter.addFragment(new FragmentTrainsDay(), "2");
         adapter.addFragment(new FragmentTrainsDate(), "3");
+        this.setRetainInstance(true);
         super.onCreate(savedInstanceState);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_selection_train, container, false);
+        if (view == null)
+            view = inflater.inflate(R.layout.fragment_selection_train, container, false);
         vpContainer = (ViewPager) view.findViewById(R.id.vpContainer);
-        vpContainer.setAdapter(adapter);
+        if (vpContainer.getAdapter() == null)
+            vpContainer.setAdapter(adapter);
         vpContainer.setOffscreenPageLimit(3);
         vpContainer.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override

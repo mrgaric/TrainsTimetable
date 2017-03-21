@@ -27,7 +27,7 @@ public class FragmentTrainsDay extends FragmentTrainsImmediate {
         @Override
         protected void onPostParse(List<Train> trains) {
             trainList = new ArrayList<>(trains);
-            updateAdapter(trainList);
+            updateDataAdapter(trainList);
         }
     }
 }

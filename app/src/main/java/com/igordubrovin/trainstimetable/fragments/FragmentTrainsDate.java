@@ -51,11 +51,15 @@ public class FragmentTrainsDate extends FragmentTrains<FragmentTrainsDate.Loader
 
     @Override
     public void startLoaderTrains() {
-        if (trainList == null || (!dayDeparture.equals(newDayDeparture) && !monthDeparture.equals(newMonthDeparture))){
-            super.startLoaderTrains();
-            dayDeparture = newDayDeparture;
-            monthDeparture = newMonthDeparture;
+        if (newDayDeparture != null && newMonthDeparture != null){
+            if (!newDayDeparture.equals(dayDeparture) || !newMonthDeparture.equals(monthDeparture)){
+                dayDeparture = newDayDeparture;
+                monthDeparture = newMonthDeparture;
+                super.startLoaderTrains();
+                return;
+            }
         }
+        stopRefresh();
     }
 
     @Override
@@ -77,9 +81,8 @@ public class FragmentTrainsDate extends FragmentTrains<FragmentTrainsDate.Loader
 
     class LoaderTrains extends FragmentTrains.LoaderHtml {
         @Override
-        protected void onPostParse(List<Train> trains) {
-            trainList = new ArrayList<>(trains);
-            updateAdapter(trainList);
+        protected void onPostParse(List<Train> trains) {trainList = new ArrayList<>(trains);
+            updateDataAdapter(trainList);
         }
     }
 }

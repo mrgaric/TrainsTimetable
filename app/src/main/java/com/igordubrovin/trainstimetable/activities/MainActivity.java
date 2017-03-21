@@ -58,15 +58,10 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
 
     private MenuItem calendarMenuItem;
 
-
-
     private FragmentSelectionTrain fragmentSelectionTrain;
-
-    private int choiceTimetable = ConstProject.CHOICE_FOR_IMMEDIATE;
 
     AppBarLayout appBarLayout;
 
-    FrameLayout fragmentContainer;
     TabLayout tabLayoutToolbar;
 
     @Override
@@ -74,21 +69,9 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        createToolbar();
-        tabLayoutToolbar = (TabLayout) findViewById(R.id.tabToolbar);
-        createMaterialDrawer(savedInstanceState);
-
-        Fragment fragment = getCurrentFragment(ConstProject.FRAGMENT_SELECTION_TRAIN);
-        if (fragment == null) {
-            fragment = getCurrentFragment(ConstProject.FRAGMENT_LIKED_ROUTE);
-            if (fragment == null) {
-                fragmentSelectionTrain = new FragmentSelectionTrain();
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.fragmentContainer, fragmentSelectionTrain, ConstProject.FRAGMENT_SELECTION_TRAIN)
-                        .commit();
-            }
-        } else fragmentSelectionTrain = (FragmentSelectionTrain)fragment;
-        fragmentSelectionTrain.setOnChangeTebListener(onChangeTabListener);
+        initFragment();
+        initToolbar();
+        initMaterialDrawer(savedInstanceState);
 
         likedHelper = new CPLikedHelper(getApplicationContext());
         likedHelper.setLoadListener(this);
@@ -115,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
                         .startLoadItemDB(getSupportLoaderManager(), CPLikedHelper.CHECK_LIKED, bundle);
 
                 FragmentSelectionTrain.setStations(stationFrom, stationTo);
-                setTabLayout();
+                setVisibleTabLayout();
             }
         }
     }
@@ -134,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
         outState.putInt("likedId", likedId);
         outState.putString("StationFrom", stationFrom);
         outState.putString("StationTo", stationTo);
-        outState.putInt("choiceTimetable", choiceTimetable);
+        outState.putInt("selectItemMaterialDrawer", drawer.getCurrentSelection());
     }
 
     @Override
@@ -144,11 +127,11 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
             stationFrom = savedInstanceState.getString("StationFrom");
             stationTo = savedInstanceState.getString("StationTo");
             liked = savedInstanceState.getBoolean("liked");
-            choiceTimetable = savedInstanceState.getInt("choiceTimetable");
             if (liked)
                 setLiked(savedInstanceState.getInt("likedId"));
-            if (stationFrom != null){
+            if (!stationFrom.equals("")){
                 tvSearchStation.setText(stationFrom + " - " + stationTo);
+                setVisibleTabLayout();
             }
         }
     }
@@ -178,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
                     case 1:
                         containerItemToolbar.setVisibility(View.VISIBLE);
                         getSupportFragmentManager().popBackStack();
-                        setTabLayout();
+                        setVisibleTabLayout();
                         break;
                     case 2:
                         containerItemToolbar.setVisibility(View.GONE);
@@ -188,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
                                 .addToBackStack(ConstProject.FRAGMENT_SELECTION_TRAIN)
                                 .replace(R.id.fragmentContainer, fragmentLiked, ConstProject.FRAGMENT_LIKED_ROUTE)
                                 .commit();
-                        collapseTabLayout();
+                        setGoneTabLayout();
                         break;
                     case 3:
 
@@ -278,10 +261,23 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
         liked = false;
     }
 
-    private void createToolbar(){
+    private void initFragment(){
+        Fragment fragment = getCurrentFragment(ConstProject.FRAGMENT_SELECTION_TRAIN);
+        if (fragment == null) {
+            fragmentSelectionTrain = new FragmentSelectionTrain();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragmentContainer, fragmentSelectionTrain, ConstProject.FRAGMENT_SELECTION_TRAIN)
+                    .commit();
+        } else {
+            fragmentSelectionTrain = (FragmentSelectionTrain) fragment;
+        }
+        if (fragmentSelectionTrain != null)
+            fragmentSelectionTrain.setOnChangeTebListener(onChangeTabListener);
+    }
+
+    private void initToolbar(){
         toolbar = (Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        fragmentContainer = (FrameLayout) findViewById(R.id.fragmentContainer);
         containerItemToolbar = (FrameLayout) findViewById(R.id.toolbarItemContainer);
         getLayoutInflater().inflate(R.layout.toolbar_item_1, containerItemToolbar, true);
         appBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
@@ -289,16 +285,18 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
         tvSearchStation.setOnClickListener(tvSearchStationClick);
         ivLiked = (ImageView) findViewById(R.id.ivLiked);
         ivLiked.setOnClickListener(clickIvLiked);
+        tabLayoutToolbar = (TabLayout) findViewById(R.id.tabToolbar);
+        tabLayoutToolbar.setupWithViewPager(fragmentSelectionTrain.getVpContainer());
     }
 
-    private void createMaterialDrawer(Bundle savedInstanceState){
+    private void initMaterialDrawer(Bundle savedInstanceState){
         selectFragment = getResources().getStringArray(R.array.selectionFragment);
         PrimaryDrawerItem[] primaryDrawerItems = new PrimaryDrawerItem[selectFragment.length];
         for (int i = 0; i < selectFragment.length; i++) {
             primaryDrawerItems[i] = new PrimaryDrawerItem()
                     .withName(selectFragment[i])
                     .withIdentifier(i)
-                    .withSelectable(true);
+                    .withSelectable(false);
         }
         AccountHeader accountHeader = new AccountHeaderBuilder()
                 .withActivity(this)
@@ -310,21 +308,28 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
                 .withAccountHeader(accountHeader)
                 .withDisplayBelowStatusBar(true)
                 .withToolbar(toolbar)
-                .withActionBarDrawerToggleAnimated(true)
+                .withActionBarDrawerToggleAnimated(false)
                 .withSavedInstance(savedInstanceState)
                 .addDrawerItems((IDrawerItem[]) primaryDrawerItems)
                 .withSavedInstance(savedInstanceState)
                 .withShowDrawerOnFirstLaunch(true)
                 .withOnDrawerItemClickListener(drawerItemClickListener)
                 .build();
+
+        if (savedInstanceState != null) {
+            int position = savedInstanceState.getInt("selectItemMaterialDrawer", -1);
+            if (position != -1) {
+                drawer.setSelection(position);
+            }
+        }
     }
 
-    private void setTabLayout(){
-        tabLayoutToolbar.setVisibility(View.VISIBLE);
-        tabLayoutToolbar.setupWithViewPager(fragmentSelectionTrain.getVpContainer());
+    private void setVisibleTabLayout(){
+        if (!stationFrom.equals(""))
+            tabLayoutToolbar.setVisibility(View.VISIBLE);
     }
 
-    private void collapseTabLayout(){
+    private void setGoneTabLayout(){
         tabLayoutToolbar.setVisibility(View.GONE);
     }
 

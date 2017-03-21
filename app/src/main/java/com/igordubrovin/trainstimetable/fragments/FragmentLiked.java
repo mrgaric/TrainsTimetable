@@ -81,7 +81,10 @@ public class FragmentLiked extends Fragment implements CPLikedHelper.LoadListene
         if (cursor.getCount() != 0) {
             tvNotLiked.setVisibility(View.GONE);
             rvLiked.setVisibility(View.VISIBLE);
-            adapter.swapCursor(cursor);
+            Cursor old = adapter.swapCursor(cursor);
+            if (old != null) {
+                old.close();
+            }
         } else {
             tvNotLiked.setVisibility(View.VISIBLE);
             rvLiked.setVisibility(View.GONE);

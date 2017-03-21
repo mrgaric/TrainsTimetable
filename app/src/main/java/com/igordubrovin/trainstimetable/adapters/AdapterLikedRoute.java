@@ -22,20 +22,26 @@ import com.igordubrovin.trainstimetable.utils.ContentProviderLikedDB;
 public class AdapterLikedRoute extends RecyclerView.Adapter<AdapterLikedRoute.ViewHolder>{
 
     OnItemContextMenuClickListener listener;
-    Cursor cursor;
+    Cursor mCursor;
 
-    public AdapterLikedRoute(){
-        cursor = null;
-    }
-
-    public void swapCursor(Cursor c){
-        cursor = c;
-        this.notifyDataSetChanged();
+    public Cursor swapCursor(Cursor newCursor){
+        if (newCursor == mCursor) {
+            return null;
+        }
+        Cursor oldCursor = mCursor;
+        mCursor = newCursor;
+        if (newCursor != null) {
+            notifyDataSetChanged();
+        } else {
+            notifyItemRangeRemoved(0, getItemCount());
+            mCursor = null;
+        }
+        return oldCursor;
     }
 
     public void closeCursor(){
-        if (cursor != null)
-            cursor.close();
+        if (mCursor != null)
+            mCursor.close();
     }
 
     @Override
@@ -46,16 +52,16 @@ public class AdapterLikedRoute extends RecyclerView.Adapter<AdapterLikedRoute.Vi
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        cursor.moveToPosition(position);
-        String a = cursor.getString(cursor.getColumnIndex(ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_STATION_FROM));
-        String b = cursor.getString(cursor.getColumnIndex(ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_STATION_TO));;
+        mCursor.moveToPosition(position);
+        String a = mCursor.getString(mCursor.getColumnIndex(ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_STATION_FROM));
+        String b = mCursor.getString(mCursor.getColumnIndex(ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_STATION_TO));;
         holder.tvItemFrom.setText(a);
         holder.tvItemTo.setText(b);
     }
 
     @Override
     public int getItemCount() {
-        return cursor != null ? cursor.getCount() : 0;
+        return mCursor != null ? mCursor.getCount() : 0;
     }
 
     public void setOnItemContextMenuClickListener(OnItemContextMenuClickListener l){
@@ -89,8 +95,8 @@ public class AdapterLikedRoute extends RecyclerView.Adapter<AdapterLikedRoute.Vi
         public boolean onMenuItemClick(MenuItem item) {
             if (listener != null){
                 int pos = getAdapterPosition();
-                cursor.moveToPosition(pos);
-                int id = cursor.getInt(cursor.getColumnIndex(ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_ID));
+                mCursor.moveToPosition(pos);
+                int id = mCursor.getInt(mCursor.getColumnIndex(ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_ID));
                 listener.onItemContextMenuClickListener(id);
                 return true;
             }

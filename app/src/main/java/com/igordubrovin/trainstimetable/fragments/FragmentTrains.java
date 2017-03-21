@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +34,7 @@ public abstract class FragmentTrains <T extends FragmentTrains.LoaderHtml> exten
     private SwipeRefreshLayout refreshTrains;
     private RecyclerView rvSelection;
     private AdapterSelectionTrain adapterRvSelection;
+    private View view;
 
     protected T loaderTrains;
     protected static String stationFrom;
@@ -52,28 +54,16 @@ public abstract class FragmentTrains <T extends FragmentTrains.LoaderHtml> exten
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        View view = inflater.inflate(R.layout.fragment_trains, container, false);
+        if (view == null)
+            view = inflater.inflate(R.layout.fragment_trains, container, false);
 
         tvInformFragment = (TextView)view.findViewById(R.id.tvInformFragment);
 
-        refreshTrains = (SwipeRefreshLayout) view.findViewById(R.id.refreshTrains);
-        refreshTrains.setOnRefreshListener(this);
-        refreshTrains.setColorSchemeResources(R.color.colorAccent, R.color.colorPrimary);
-        //refreshTrains.setProgressBackgroundColorSchemeResource(R.color.colorPrimaryDark);
-        //refreshTrains.setProgressBackgroundColorSchemeColor(Color.TRANSPARENT);
-        //refreshTrains.setBackgroundColor(Color.TRANSPARENT);
-
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        rvSelection = (RecyclerView) view.findViewById(R.id.rvSelection);
-        rvSelection.setLayoutManager(linearLayoutManager);
-        rvSelection.setAdapter(adapterRvSelection);
-        rvSelection.setVisibility(View.VISIBLE);
+        initRefresh();
+        initRecyclerSelection();
 
         setStationFrom("Москва");
         setStationTo("Зеленоград");
-
-        //startLoaderTrains();
 
         return view;
     }
@@ -83,14 +73,42 @@ public abstract class FragmentTrains <T extends FragmentTrains.LoaderHtml> exten
         super.onDestroy();
         if (loaderTrains != null)
             loaderTrains.cancel(false);
+        stopRefresh();
+    }
+
+    // init
+
+    private void initRefresh(){
+        refreshTrains = (SwipeRefreshLayout) view.findViewById(R.id.refreshTrains);
+        refreshTrains.setOnRefreshListener(this);
+        refreshTrains.setColorSchemeResources(R.color.colorAccent, R.color.colorPrimary);
+        TypedValue tv = new TypedValue();
+        int actionBarSize = 0;
+        if (getActivity().getApplicationContext().getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)){
+            actionBarSize = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
+        }
+        refreshTrains.setProgressViewOffset(true, -100, actionBarSize);
+        if (loaderTrains != null)
+            if (loaderTrains.getStatus() == AsyncTask.Status.RUNNING)
+                refreshTrains.setRefreshing(true);
+    }
+
+    private void initRecyclerSelection(){
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        rvSelection = (RecyclerView) view.findViewById(R.id.rvSelection);
+        rvSelection.setLayoutManager(linearLayoutManager);
+
+        if (rvSelection.getAdapter() == null)
+            rvSelection.setAdapter(adapterRvSelection);
+        rvSelection.setVisibility(View.VISIBLE);
     }
 
     // обновление
 
     @Override
     public void onRefresh() {
-        startLoaderTrains();
         refreshTrains.setRefreshing(true);
+        startLoaderTrains();
     }
 
     public void stopRefresh(){
@@ -108,18 +126,12 @@ public abstract class FragmentTrains <T extends FragmentTrains.LoaderHtml> exten
     }
 
     public void startLoaderTrains(){
-        if (loaderTrains != null) {
-            if (loaderTrains.getStatus() == AsyncTask.Status.RUNNING) {
-                stopRefresh();
-                return;
-            }
-        }
         String url = getUrl();
         loaderTrains = createLoader();
         loaderTrains.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
     }
 
-    protected void updateAdapter(List<Train> trains){
+    protected void updateDataAdapter(List<Train> trains){
         stopRefresh();
         adapterRvSelection.swapData(trains);
     }
@@ -147,7 +159,7 @@ public abstract class FragmentTrains <T extends FragmentTrains.LoaderHtml> exten
                 doc = Jsoup.connect(url)
                         .userAgent("Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1667.0 Safari/537.36")
                         .referrer("http://www.google.com")
-                        .timeout(5000)
+                        .timeout(3000)
                         .get();
             } catch (IOException e) {
                 e.printStackTrace();

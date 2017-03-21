@@ -25,7 +25,6 @@ public class FragmentTrainsImmediate extends FragmentTrains<FragmentTrainsImmedi
         return new LoaderTrains();
     }
 
-
     class LoaderTrains extends FragmentTrains.LoaderHtml {
         @Override
         protected void onPostParse(List<Train> trains) {
@@ -36,7 +35,7 @@ public class FragmentTrainsImmediate extends FragmentTrains<FragmentTrainsImmedi
                     break;
                 }
             }
-            updateAdapter(trainList);
+            updateDataAdapter(trainList);
         }
     }
 }
