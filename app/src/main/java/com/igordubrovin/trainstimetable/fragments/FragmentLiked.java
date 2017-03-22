@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.igordubrovin.trainstimetable.Interfaces.OnItemAdapterClickListener;
 import com.igordubrovin.trainstimetable.R;
 import com.igordubrovin.trainstimetable.adapters.AdapterLikedRoute;
 import com.igordubrovin.trainstimetable.utils.CPLikedHelper;
@@ -22,7 +23,7 @@ import com.igordubrovin.trainstimetable.utils.ContentProviderLikedDB;
  * Created by Игорь on 09.03.2017.
  */
 
-public class FragmentLiked extends Fragment implements CPLikedHelper.LoadListener, AdapterLikedRoute.OnItemContextMenuClickListener {
+public class FragmentLiked extends Fragment implements CPLikedHelper.LoadListener, AdapterLikedRoute.OnItemContextMenuClickListener, OnItemAdapterClickListener {
 
     private AdapterLikedRoute adapter;
     private CPLikedHelper likedHelper;
@@ -35,7 +36,7 @@ public class FragmentLiked extends Fragment implements CPLikedHelper.LoadListene
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        adapter = new AdapterLikedRoute();
+        adapter = new AdapterLikedRoute(this);
         adapter.setOnItemContextMenuClickListener(this);
         likedHelper = new CPLikedHelper(getContext());
         this.setRetainInstance(true);
@@ -95,7 +96,18 @@ public class FragmentLiked extends Fragment implements CPLikedHelper.LoadListene
         listener = l;
     }
 
+    @Override
+    public void onItemClick(int position) {
+
+    }
+
+    @Override
+    public void onItemClick(int position, String stationFrom, String stationTo) {
+        listener.clickItem(position, stationFrom, stationTo);
+    }
+
     public interface ActionLikedFragment{
         void actionDel(int id);
+        void clickItem(int id, String stationFrom, String stationTo);
     }
 }

@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.igordubrovin.trainstimetable.Interfaces.OnItemAdapterClickListener;
 import com.igordubrovin.trainstimetable.R;
 import com.igordubrovin.trainstimetable.utils.ConstProject;
 import com.igordubrovin.trainstimetable.utils.ContentProviderLikedDB;
@@ -22,7 +23,13 @@ import com.igordubrovin.trainstimetable.utils.ContentProviderLikedDB;
 public class AdapterLikedRoute extends RecyclerView.Adapter<AdapterLikedRoute.ViewHolder>{
 
     OnItemContextMenuClickListener listener;
+    OnItemAdapterClickListener itemClickListener;
     Cursor mCursor;
+
+    public AdapterLikedRoute(OnItemAdapterClickListener itemClickListener){
+        this.itemClickListener = itemClickListener;
+
+    }
 
     public Cursor swapCursor(Cursor newCursor){
         if (newCursor == mCursor) {
@@ -47,16 +54,17 @@ public class AdapterLikedRoute extends RecyclerView.Adapter<AdapterLikedRoute.Vi
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_liked_route_adapter, parent, false);
-        return new ViewHolder(view);
+        return new ViewHolder(view, itemClickListener);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         mCursor.moveToPosition(position);
         String a = mCursor.getString(mCursor.getColumnIndex(ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_STATION_FROM));
-        String b = mCursor.getString(mCursor.getColumnIndex(ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_STATION_TO));;
+        String b = mCursor.getString(mCursor.getColumnIndex(ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_STATION_TO));
         holder.tvItemFrom.setText(a);
         holder.tvItemTo.setText(b);
+        holder.id = mCursor.getInt(mCursor.getColumnIndex(ContentProviderLikedDB.LIKED_DB_COLUMN_NAME_ID));
     }
 
     @Override
@@ -73,16 +81,17 @@ public class AdapterLikedRoute extends RecyclerView.Adapter<AdapterLikedRoute.Vi
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener, MenuItem.OnMenuItemClickListener{
-        LinearLayout llItemLiked;
-        TextView tvItemFrom;
-        TextView tvItemTo;
-        ViewHolder(View itemView) {
+        private LinearLayout llItemLiked;
+        private TextView tvItemFrom;
+        private TextView tvItemTo;
+        private int id;
+        ViewHolder(View itemView, OnItemAdapterClickListener listener) {
             super(itemView);
             tvItemFrom = (TextView) itemView.findViewById(R.id.tvItemLikedFrom);
             tvItemTo = (TextView) itemView.findViewById(R.id.tvItemLikedTo);
-            llItemLiked = (LinearLayout) itemView.findViewById(R.id.llItemLiked);
 
-            llItemLiked.setOnCreateContextMenuListener(this);
+            itemView.setOnCreateContextMenuListener(this);
+            setItemClickListener(listener);
 
         }
 
@@ -101,6 +110,16 @@ public class AdapterLikedRoute extends RecyclerView.Adapter<AdapterLikedRoute.Vi
                 return true;
             }
             return false;
+        }
+
+        private void setItemClickListener(final OnItemAdapterClickListener listener){
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (listener != null)
+                        listener.onItemClick(id, tvItemFrom.getText().toString(), tvItemTo.getText().toString());
+                }
+            });
         }
     }
 

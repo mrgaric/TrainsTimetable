@@ -3,18 +3,20 @@ package com.igordubrovin.trainstimetable.fragments;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BaseTransientBottomBar;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.igordubrovin.trainstimetable.R;
-import com.igordubrovin.trainstimetable.adapters.AdapterSelectionTrain;
+import com.igordubrovin.trainstimetable.adapters.AdapterTrainsRecycler;
 import com.igordubrovin.trainstimetable.utils.HtmlHelper;
 import com.igordubrovin.trainstimetable.utils.Train;
 
@@ -24,21 +26,25 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 import java.util.List;
 
+import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
+import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter;
+
 /**
  * Created by Игорь on 16.03.2017.
  */
 
 public abstract class FragmentTrains <T extends FragmentTrains.LoaderHtml> extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
 
-    private TextView tvInformFragment;
     private SwipeRefreshLayout refreshTrains;
     private RecyclerView rvSelection;
-    private AdapterSelectionTrain adapterRvSelection;
+    private AdapterTrainsRecycler adapterRvSelection;
+    private AlphaInAnimationAdapter alphaInAnimationAdapter;
+    private ScaleInAnimationAdapter scaleInAnimationAdapter;
     private View view;
 
     protected T loaderTrains;
-    protected static String stationFrom;
-    protected static String stationTo;
+    protected String stationFrom = "";
+    protected String stationTo = "";
 
     protected List<Train> trainList;
 
@@ -47,24 +53,22 @@ public abstract class FragmentTrains <T extends FragmentTrains.LoaderHtml> exten
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        adapterRvSelection = new AdapterSelectionTrain();
+        adapterRvSelection = new AdapterTrainsRecycler();
+        alphaInAnimationAdapter = new AlphaInAnimationAdapter(adapterRvSelection);
+        alphaInAnimationAdapter.setDuration(200);
+        alphaInAnimationAdapter.setFirstOnly(false);
+        scaleInAnimationAdapter = new ScaleInAnimationAdapter(alphaInAnimationAdapter);
+        scaleInAnimationAdapter.setDuration(200);
+        scaleInAnimationAdapter.setFirstOnly(false);
         this.setRetainInstance(true);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (view == null)
-            view = inflater.inflate(R.layout.fragment_trains, container, false);
-
-        tvInformFragment = (TextView)view.findViewById(R.id.tvInformFragment);
-
+        view = inflater.inflate(R.layout.fragment_trains, container, false);
         initRefresh();
         initRecyclerSelection();
-
-        setStationFrom("Москва");
-        setStationTo("Зеленоград");
-
         return view;
     }
 
@@ -97,10 +101,9 @@ public abstract class FragmentTrains <T extends FragmentTrains.LoaderHtml> exten
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         rvSelection = (RecyclerView) view.findViewById(R.id.rvSelection);
         rvSelection.setLayoutManager(linearLayoutManager);
-
-        if (rvSelection.getAdapter() == null)
-            rvSelection.setAdapter(adapterRvSelection);
-        rvSelection.setVisibility(View.VISIBLE);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), linearLayoutManager.getOrientation());
+        rvSelection.addItemDecoration(dividerItemDecoration);
+        rvSelection.setAdapter(scaleInAnimationAdapter);
     }
 
     // обновление
@@ -117,11 +120,11 @@ public abstract class FragmentTrains <T extends FragmentTrains.LoaderHtml> exten
 
     // Вспомогательные методы
 
-    public static void setStationFrom(String station) {
+    public void setStationFrom(String station) {
         stationFrom = station;
     }
 
-    public static void setStationTo(String station) {
+    public void setStationTo(String station) {
         stationTo = station;
     }
 
@@ -134,13 +137,18 @@ public abstract class FragmentTrains <T extends FragmentTrains.LoaderHtml> exten
     protected void updateDataAdapter(List<Train> trains){
         stopRefresh();
         adapterRvSelection.swapData(trains);
+        alphaInAnimationAdapter.notifyDataSetChanged();
+    }
+
+    protected void makeSnackbar(){
+        Snackbar.make(getActivity().getWindow().getDecorView().getRootView(), "Ошибка загрузки", BaseTransientBottomBar.LENGTH_SHORT).show();
+        stopRefresh();
     }
 
     //абстрактные методы
 
     protected abstract String getUrl();
     protected abstract T createLoader();
-
 
     // класс Лоадер
 
@@ -163,6 +171,7 @@ public abstract class FragmentTrains <T extends FragmentTrains.LoaderHtml> exten
                         .get();
             } catch (IOException e) {
                 e.printStackTrace();
+                return null;
             }
             return doc;
         }
@@ -170,10 +179,13 @@ public abstract class FragmentTrains <T extends FragmentTrains.LoaderHtml> exten
         @Override
         protected void onPostExecute(Document document) {
             super.onPostExecute(document);
-            onPostParse(new HtmlHelper().htmlParse(document));
+            if (document != null)
+                onPostParse(new HtmlHelper().htmlParse(document));
+            else onPostError();
         }
 
         protected abstract void onPostParse(List<Train> trains);
+        protected abstract void onPostError();
     }
 
 }

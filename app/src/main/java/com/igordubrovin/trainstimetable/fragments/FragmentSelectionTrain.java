@@ -8,25 +8,29 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
-import com.igordubrovin.trainstimetable.Interface.OnChangeTabListener;
+import com.igordubrovin.trainstimetable.Interfaces.OnChangeTabListener;
 import com.igordubrovin.trainstimetable.R;
 import com.igordubrovin.trainstimetable.adapters.ViewPagerAdapter;
 
 public class FragmentSelectionTrain extends Fragment {
 
     private OnChangeTabListener tabChangeListener;
+    private TextView tvInformFragment;
 
     private ViewPagerAdapter adapter;
     private ViewPager vpContainer;
-    View view;
+    private int tabPosition;
+
+    private boolean startLoad = false;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         adapter = new ViewPagerAdapter(getChildFragmentManager());
-        adapter.addFragment(new FragmentTrainsImmediate(), "1");
-        adapter.addFragment(new FragmentTrainsDay(), "2");
-        adapter.addFragment(new FragmentTrainsDate(), "3");
+        adapter.addFragment(new FragmentTrainsImmediate(), "Ближайшие");
+        adapter.addFragment(new FragmentTrainsDay(), "На день");
+        adapter.addFragment(new FragmentTrainsDate(), "Выбор даты");
         this.setRetainInstance(true);
         super.onCreate(savedInstanceState);
     }
@@ -34,11 +38,9 @@ public class FragmentSelectionTrain extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        if (view == null)
-            view = inflater.inflate(R.layout.fragment_selection_train, container, false);
+        View view = inflater.inflate(R.layout.fragment_selection_train, container, false);
         vpContainer = (ViewPager) view.findViewById(R.id.vpContainer);
-        if (vpContainer.getAdapter() == null)
-            vpContainer.setAdapter(adapter);
+        vpContainer.setAdapter(adapter);
         vpContainer.setOffscreenPageLimit(3);
         vpContainer.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -49,7 +51,8 @@ public class FragmentSelectionTrain extends Fragment {
             @Override
             public void onPageSelected(int position) {
                 if (tabChangeListener != null)
-                    tabChangeListener.onChangeTab(position);
+                    tabChangeListener.onChangeSelectTab(position);
+                tabPosition = position;
             }
 
             @Override
@@ -57,26 +60,63 @@ public class FragmentSelectionTrain extends Fragment {
 
             }
         });
+
+        tabChangeListener.onCreateNewTabs();
+
+        tvInformFragment = (TextView)view.findViewById(R.id.tvInformFragment);
+        setViewVisible();
         return view;
     }
 
-    public static void setStations(String stationFrom, String stationTo){
-        FragmentTrains.setStationFrom(stationFrom);
-        FragmentTrains.setStationTo(stationTo);
+    private void setViewVisible(){
+        if (startLoad) {
+            tvInformFragment.setVisibility(View.GONE);
+            vpContainer.setVisibility(View.VISIBLE);
+        } else {
+            tvInformFragment.setVisibility(View.VISIBLE);
+            vpContainer.setVisibility(View.INVISIBLE);
+        }
     }
 
-    public static void setDateDeparture(String day, String month){
-        FragmentTrainsDate.setNewDayDeparture(day);
-        FragmentTrainsDate.setNewMonthDeparture(month);
+    public void setStations(String stationFrom, String stationTo){
+        startLoad = true;
+        setViewVisible();
+        ((FragmentTrains)adapter.getItem(0)).setStationFrom(stationFrom);
+        ((FragmentTrains)adapter.getItem(0)).setStationTo(stationTo);
+        ((FragmentTrains)adapter.getItem(1)).setStationFrom(stationFrom);
+        ((FragmentTrains)adapter.getItem(1)).setStationTo(stationTo);
+        ((FragmentTrains)adapter.getItem(2)).setStationFrom(stationFrom);
+        ((FragmentTrains)adapter.getItem(2)).setStationTo(stationTo);
+    }
+
+    public void startLoadingTrainsImmediate(){
+        ((FragmentTrains)adapter.getItem(0)).onRefresh();
+    }
+
+    public void startLoadingTrainsDay(){
+        ((FragmentTrains)adapter.getItem(1)).onRefresh();
+    }
+
+    public void startLoadingTrainsDate(){
+        ((FragmentTrainsDate)adapter.getItem(2)).onRefresh();
+    }
+
+    public void setDateDeparture(String day, String month){
+        ((FragmentTrainsDate)adapter.getItem(2)).setNewDayDeparture(day);
+        ((FragmentTrainsDate)adapter.getItem(2)).setNewMonthDeparture(month);
     }
 
     public ViewPager getVpContainer() {
         return vpContainer;
     }
 
-    public void setOnChangeTebListener(OnChangeTabListener l){
+    public void setOnChangeTabListener(OnChangeTabListener l){
         tabChangeListener = l;
     };
+
+    public int getTabsPosition(){
+        return tabPosition;
+    }
 }
 
 
@@ -97,7 +137,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.igordubrovin.trainstimetable.R;
-import com.igordubrovin.trainstimetable.adapters.AdapterSelectionTrain;
+import com.igordubrovin.trainstimetable.adapters.AdapterTrainsRecycler;
 import com.igordubrovin.trainstimetable.utils.HtmlHelper;
 import com.igordubrovin.trainstimetable.utils.Train;
 import com.igordubrovin.trainstimetable.utils.UrlDirector;
@@ -124,7 +164,7 @@ public class FragmentSelectionTrain extends Fragment {
     ProgressBar pbLoad;
     TextView tvInformFragment;
     RecyclerView rvSelection;
-    AdapterSelectionTrain adapter;
+    AdapterTrainsRecycler adapter;
 
     boolean nothing;
     boolean searching;
@@ -144,7 +184,7 @@ public class FragmentSelectionTrain extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        adapter = new AdapterSelectionTrain();
+        adapter = new AdapterTrainsRecycler();
         nothing = true;
         shows = false;
         searching = false;

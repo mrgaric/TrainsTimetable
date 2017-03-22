@@ -37,5 +37,11 @@ public class FragmentTrainsImmediate extends FragmentTrains<FragmentTrainsImmedi
             }
             updateDataAdapter(trainList);
         }
+
+        @Override
+        protected void onPostError() {
+            makeSnackbar();
+
+        }
     }
 }

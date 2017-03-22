@@ -20,7 +20,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.igordubrovin.trainstimetable.Interface.OnChangeTabListener;
+import com.igordubrovin.trainstimetable.Interfaces.OnChangeTabListener;
 import com.igordubrovin.trainstimetable.R;
 import com.igordubrovin.trainstimetable.dialogs.DateDialogFragment;
 import com.igordubrovin.trainstimetable.fragments.FragmentLiked;
@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
 
     private Toolbar toolbar;
     private FrameLayout containerItemToolbar;
+    private TextView tvSelectionDay;
 
     private ImageView ivLiked;
 
@@ -97,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
                 likedHelper.setUri(ContentProviderLikedDB.URI_LIKED_ROUTES_CONTENT)
                         .startLoadItemDB(getSupportLoaderManager(), CPLikedHelper.CHECK_LIKED, bundle);
 
-                FragmentSelectionTrain.setStations(stationFrom, stationTo);
+                setStationAndLoad();
                 setVisibleTabLayout();
             }
         }
@@ -118,6 +119,8 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
         outState.putString("StationFrom", stationFrom);
         outState.putString("StationTo", stationTo);
         outState.putInt("selectItemMaterialDrawer", drawer.getCurrentSelection());
+        outState.putInt("visibilityToolBarContainer", containerItemToolbar.getVisibility());
+        outState.putString("tvSelectionDateDeparture", tvSelectionDay.getText().toString());
     }
 
     @Override
@@ -127,12 +130,24 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
             stationFrom = savedInstanceState.getString("StationFrom");
             stationTo = savedInstanceState.getString("StationTo");
             liked = savedInstanceState.getBoolean("liked");
+            int visible = savedInstanceState.getInt("visibilityToolBarContainer");
+            switch (visible){
+                case View.GONE:
+                    containerItemToolbar.setVisibility(View.GONE);
+                    break;
+                case View.VISIBLE:
+                    containerItemToolbar.setVisibility(View.VISIBLE);
+                    break;
+            }
+
             if (liked)
                 setLiked(savedInstanceState.getInt("likedId"));
             if (!stationFrom.equals("")){
+                tabLayoutToolbar.setupWithViewPager(fragmentSelectionTrain.getVpContainer());
                 tvSearchStation.setText(stationFrom + " - " + stationTo);
                 setVisibleTabLayout();
             }
+            tvSelectionDay.setText(savedInstanceState.getString("tvSelectionDateDeparture"));
         }
     }
 
@@ -140,6 +155,11 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main_activity, menu);
         calendarMenuItem = menu.findItem(R.id.menu_calendar);
+        if (fragmentSelectionTrain.getTabsPosition() == 2) {
+            setVisibleMenuCalendar();
+        } else {
+            setGoneMenuCalendar();
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -162,16 +182,18 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
                         containerItemToolbar.setVisibility(View.VISIBLE);
                         getSupportFragmentManager().popBackStack();
                         setVisibleTabLayout();
+                        setVisibleMenuCalendar();
                         break;
                     case 2:
-                        containerItemToolbar.setVisibility(View.GONE);
                         FragmentLiked fragmentLiked = new FragmentLiked();
                         fragmentLiked.setActionListener(listenerActionLikedFragment);
                         getSupportFragmentManager().beginTransaction()
                                 .addToBackStack(ConstProject.FRAGMENT_SELECTION_TRAIN)
                                 .replace(R.id.fragmentContainer, fragmentLiked, ConstProject.FRAGMENT_LIKED_ROUTE)
                                 .commit();
+                        containerItemToolbar.setVisibility(View.GONE);
                         setGoneTabLayout();
+                        setGoneMenuCalendar();
                         break;
                     case 3:
 
@@ -217,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
         }
     };
 
-    // callback fragment
+    // callback dialog
 
     DateDialogFragment.ActionListener listenerDateDialog = new DateDialogFragment.ActionListener() {
         @Override
@@ -226,7 +248,9 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
             String monthDeparture;
             dayDeparture = String.valueOf(dayOfMonth);
             monthDeparture = DateHelper.getMonthStr(month);
-            FragmentSelectionTrain.setDateDeparture(dayDeparture, monthDeparture);
+            fragmentSelectionTrain.setDateDeparture(dayDeparture, monthDeparture);
+            fragmentSelectionTrain.startLoadingTrainsDate();
+            tvSelectionDay.setText(dayOfMonth + " " + monthDeparture + " " + year);
         }
 
         @Override
@@ -235,25 +259,16 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
         }
     };
 
-    FragmentLiked.ActionLikedFragment listenerActionLikedFragment = new FragmentLiked.ActionLikedFragment() {
-        @Override
-        public void actionDel(int id) {
-            if (likedId == id){
-                resetLiked();
-            }
-        }
-    };
 
-    //вспомогательные методы
 
-    private Fragment getCurrentFragment(String fragmentTag){
-        return  getSupportFragmentManager().findFragmentByTag(fragmentTag);
-    }
+    //other methods
 
     private void setLiked(int id){
-        ivLiked.setImageResource(R.drawable.star_liked);
-        liked = true;
-        likedId = id;
+        if (!stationFrom.equals("")) {
+            ivLiked.setImageResource(R.drawable.star_liked);
+            liked = true;
+            likedId = id;
+        }
     }
 
     private void resetLiked(){
@@ -262,7 +277,7 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
     }
 
     private void initFragment(){
-        Fragment fragment = getCurrentFragment(ConstProject.FRAGMENT_SELECTION_TRAIN);
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(ConstProject.FRAGMENT_SELECTION_TRAIN);
         if (fragment == null) {
             fragmentSelectionTrain = new FragmentSelectionTrain();
             getSupportFragmentManager().beginTransaction()
@@ -271,9 +286,26 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
         } else {
             fragmentSelectionTrain = (FragmentSelectionTrain) fragment;
         }
-        if (fragmentSelectionTrain != null)
-            fragmentSelectionTrain.setOnChangeTebListener(onChangeTabListener);
+        fragmentSelectionTrain.setOnChangeTabListener(onChangeTabListener);
     }
+
+    private void setStationAndLoad(){
+        fragmentSelectionTrain.setStations(stationFrom, stationTo);
+        fragmentSelectionTrain.startLoadingTrainsImmediate();
+        fragmentSelectionTrain.startLoadingTrainsDay();
+    }
+
+    private void setVisibleMenuCalendar(){
+        calendarMenuItem.setVisible(true);
+        tvSelectionDay.setVisibility(View.VISIBLE);
+    }
+
+    private void setGoneMenuCalendar(){
+        calendarMenuItem.setVisible(false);
+        tvSelectionDay.setVisibility(View.GONE);
+    }
+
+    // init
 
     private void initToolbar(){
         toolbar = (Toolbar)findViewById(R.id.toolbar);
@@ -286,7 +318,8 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
         ivLiked = (ImageView) findViewById(R.id.ivLiked);
         ivLiked.setOnClickListener(clickIvLiked);
         tabLayoutToolbar = (TabLayout) findViewById(R.id.tabToolbar);
-        tabLayoutToolbar.setupWithViewPager(fragmentSelectionTrain.getVpContainer());
+        tvSelectionDay = (TextView) findViewById(R.id.tvSelectionDay);
+        tvSelectionDay.setVisibility(View.GONE);
     }
 
     private void initMaterialDrawer(Bundle savedInstanceState){
@@ -295,8 +328,7 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
         for (int i = 0; i < selectFragment.length; i++) {
             primaryDrawerItems[i] = new PrimaryDrawerItem()
                     .withName(selectFragment[i])
-                    .withIdentifier(i)
-                    .withSelectable(false);
+                    .withIdentifier(i);
         }
         AccountHeader accountHeader = new AccountHeaderBuilder()
                 .withActivity(this)
@@ -319,7 +351,7 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
         if (savedInstanceState != null) {
             int position = savedInstanceState.getInt("selectItemMaterialDrawer", -1);
             if (position != -1) {
-                drawer.setSelection(position);
+                drawer.setSelection(position, false);
             }
         }
     }
@@ -349,11 +381,37 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
 
     OnChangeTabListener onChangeTabListener = new OnChangeTabListener() {
         @Override
-        public void onChangeTab(int position) {
-            if (position == 2){
-                calendarMenuItem.setVisible(true);
+        public void onChangeSelectTab(int position) {
+            if (calendarMenuItem != null) {
+                if (position == 2) {
+                    setVisibleMenuCalendar();
+                } else{
+                    setGoneMenuCalendar();
+                }
             }
-            else calendarMenuItem.setVisible(false);
+        }
+
+        @Override
+        public void onCreateNewTabs() {
+            tabLayoutToolbar.setupWithViewPager(fragmentSelectionTrain.getVpContainer());
+        }
+    };
+
+    FragmentLiked.ActionLikedFragment listenerActionLikedFragment = new FragmentLiked.ActionLikedFragment() {
+        @Override
+        public void actionDel(int id) {
+            if (likedId == id){
+                resetLiked();
+            }
+        }
+
+        @Override
+        public void clickItem(int id, String stationFrom, String stationTo) {
+            MainActivity.this.stationFrom = stationFrom;
+            MainActivity.this.stationTo = stationTo;
+            drawer.setSelection(0);
+            setStationAndLoad();
+            setLiked(id);
         }
     };
 }

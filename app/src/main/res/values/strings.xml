@@ -4,7 +4,7 @@
     <string name="station_to">Куда</string>
     <string name="search">Поиск</string>
     <string name="hint_search">Начните вводить название станции</string>
-    <string name="enter_station_from">Введите станцию отправления</string>
+    <string name="enter_stations">Введите станции отправления \n и назначения</string>
     <string name="no_liked_routes">Нет избранных маршрутов</string>
     <string name="menu_calendar">календарь</string>
 

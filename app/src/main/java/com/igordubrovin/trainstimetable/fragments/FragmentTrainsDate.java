@@ -24,8 +24,8 @@ public class FragmentTrainsDate extends FragmentTrains<FragmentTrainsDate.Loader
     private String dayDeparture;
     private String monthDeparture;
 
-    private static String newDayDeparture;
-    private static String newMonthDeparture;
+    private String newDayDeparture;
+    private String newMonthDeparture;
 
     @Nullable
     @Override
@@ -52,7 +52,7 @@ public class FragmentTrainsDate extends FragmentTrains<FragmentTrainsDate.Loader
     @Override
     public void startLoaderTrains() {
         if (newDayDeparture != null && newMonthDeparture != null){
-            if (!newDayDeparture.equals(dayDeparture) || !newMonthDeparture.equals(monthDeparture)){
+            if ((!newDayDeparture.equals(dayDeparture) || !newMonthDeparture.equals(monthDeparture)) || trainList.size() == 0){
                 dayDeparture = newDayDeparture;
                 monthDeparture = newMonthDeparture;
                 super.startLoaderTrains();
@@ -71,18 +71,24 @@ public class FragmentTrainsDate extends FragmentTrains<FragmentTrainsDate.Loader
                 .getUrl();
     }
 
-    public static void setNewDayDeparture(String dayDeparture) {
+    public void setNewDayDeparture(String dayDeparture) {
         newDayDeparture = dayDeparture;
     }
 
-    public static void setNewMonthDeparture(String monthDeparture) {
+    public void setNewMonthDeparture(String monthDeparture) {
         newMonthDeparture = monthDeparture;
     }
 
     class LoaderTrains extends FragmentTrains.LoaderHtml {
         @Override
-        protected void onPostParse(List<Train> trains) {trainList = new ArrayList<>(trains);
+        protected void onPostParse(List<Train> trains) {
+            trainList = new ArrayList<>(trains);
             updateDataAdapter(trainList);
+        }
+
+        @Override
+        protected void onPostError() {
+            makeSnackbar();
         }
     }
 }

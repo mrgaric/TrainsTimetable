@@ -34,6 +34,9 @@ public class HtmlHelper {
                 first = false;
                 continue;
             }
+            if (trainElement.getElementsByAttributeValue("class", "b-routers__ad").text().equals("реклама")){
+                continue;
+            }
             timeDeparture = trainElement.getElementsByAttributeValue("class", "b-routers__time b-routers__time_with-icon_false b-routers__time_type_departure")
                     .text();
             timeArrival = trainElement.getElementsByAttributeValue("class", "b-routers__time b-routers__time_with-icon_false b-routers__time_type_arrival")
