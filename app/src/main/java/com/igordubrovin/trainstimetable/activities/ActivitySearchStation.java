@@ -10,12 +10,13 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.ImageButton;
 
 import com.igordubrovin.trainstimetable.R;
 import com.igordubrovin.trainstimetable.adapters.AdapterSearchStation;
 import com.igordubrovin.trainstimetable.customView.CustomEditText;
-import com.igordubrovin.trainstimetable.utils.ConstProject;
 import com.igordubrovin.trainstimetable.utils.CLForSearchStationDB;
+import com.igordubrovin.trainstimetable.utils.ConstProject;
 
 /**
  * Created by Игорь on 02.03.2017.
@@ -28,6 +29,8 @@ public class ActivitySearchStation extends AppCompatActivity implements LoaderMa
 
     private CustomEditText cetSearchFrom;
     private CustomEditText cetSearchTo;
+
+    private ImageButton btnSwapStations;
 
     int codeStationFrom;
     int codeStationTo;
@@ -78,7 +81,23 @@ public class ActivitySearchStation extends AppCompatActivity implements LoaderMa
         cetSearchFrom.setText(stationFrom);
         cetSearchTo.setText(stationTo);
 
+        btnSwapStations = (ImageButton) findViewById(R.id.btn_swap_vert);
+        btnSwapStations.setOnClickListener(clickBtnSwap);
+
     }
+
+    View.OnClickListener clickBtnSwap = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            String stationFrom = cetSearchFrom.getText().toString();
+            String stationTo = cetSearchTo.getText().toString();
+            if (!stationFrom.equals("") && !stationTo.equals("")) {
+                cetSearchFrom.setText(stationTo);
+                cetSearchTo.setText(stationFrom);
+                returnActivity();
+            }
+        }
+    };
 
     View.OnFocusChangeListener onFocusChangeCet = new View.OnFocusChangeListener() {
         @Override
@@ -123,12 +142,16 @@ public class ActivitySearchStation extends AppCompatActivity implements LoaderMa
             }
         }
         if (!cetFromIsFocused && !cetToIsFocused){
-            Intent intent = new Intent();
-            intent.putExtra(ConstProject.STATION_FROM, cetSearchFrom.getText().toString());
-            intent.putExtra(ConstProject.STATION_TO, cetSearchTo.getText().toString());
-            setResult(RESULT_OK, intent);
-            finish();
+            returnActivity();
         }
+    }
+
+    private void returnActivity(){
+        Intent intent = new Intent();
+        intent.putExtra(ConstProject.STATION_FROM, cetSearchFrom.getText().toString());
+        intent.putExtra(ConstProject.STATION_TO, cetSearchTo.getText().toString());
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     private void startSearch(String s){

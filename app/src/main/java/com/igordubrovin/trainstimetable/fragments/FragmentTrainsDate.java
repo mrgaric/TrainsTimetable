@@ -27,6 +27,9 @@ public class FragmentTrainsDate extends FragmentTrains<FragmentTrainsDate.Loader
     private String newDayDeparture;
     private String newMonthDeparture;
 
+    private String stationFrom;
+    private String stationTo;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -52,7 +55,9 @@ public class FragmentTrainsDate extends FragmentTrains<FragmentTrainsDate.Loader
     @Override
     public void startLoaderTrains() {
         if (newDayDeparture != null && newMonthDeparture != null){
-            if ((!newDayDeparture.equals(dayDeparture) || !newMonthDeparture.equals(monthDeparture)) || trainList.size() == 0){
+            if ((!newDayDeparture.equals(dayDeparture) || !newMonthDeparture.equals(monthDeparture))
+                    || (!stationFrom.equals(newStationFrom)) || !stationTo.equals(newStationTo)
+                    || trainList == null){
                 dayDeparture = newDayDeparture;
                 monthDeparture = newMonthDeparture;
                 super.startLoaderTrains();

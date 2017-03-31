@@ -31,7 +31,7 @@
         android:orientation="horizontal">
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_weight="1">
             <android.support.design.widget.TextInputLayout
@@ -48,20 +48,24 @@
             </android.support.design.widget.TextInputLayout>
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content">
                 <com.igordubrovin.trainstimetable.customView.CustomEditText
                     android:inputType="text"
                     android:id="@+id/etSearchToStation"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_width="match_parent"
                     android:hint="@string/station_to"
                     android:maxLines="1"
                     android:imeOptions = "actionSearch"/>
             </android.support.design.widget.TextInputLayout>
         </LinearLayout>
-        <Button
+        <ImageButton
+            android:id="@+id/btn_swap_vert"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="0.2"/>
+            android:layout_height="70dp"
+            android:layout_weight="0.15"
+            app:srcCompat="@drawable/ic_swap_vert"
+            android:scaleType="fitXY"
+            android:layout_gravity="center"/>
     </LinearLayout>
 </android.support.design.widget.AppBarLayout>

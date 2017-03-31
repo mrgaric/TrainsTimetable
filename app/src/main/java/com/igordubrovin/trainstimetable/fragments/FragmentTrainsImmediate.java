@@ -15,7 +15,7 @@ public class FragmentTrainsImmediate extends FragmentTrains<FragmentTrainsImmedi
     protected String getUrl() {
         UrlDirector urlDirector = new UrlDirector();
         return urlDirector
-                .createUrlAddressOnlyStation(stationFrom, stationTo)
+                .createUrlAddressOnlyStation(newStationFrom, newStationTo)
                 .getUrlAddress()
                 .getUrl();
     }

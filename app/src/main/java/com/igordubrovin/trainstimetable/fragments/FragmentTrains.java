@@ -43,8 +43,8 @@ public abstract class FragmentTrains <T extends FragmentTrains.LoaderHtml> exten
     private View view;
 
     protected T loaderTrains;
-    protected String stationFrom = "";
-    protected String stationTo = "";
+    protected String newStationFrom = "";
+    protected String newStationTo = "";
 
     protected List<Train> trainList;
 
@@ -121,11 +121,11 @@ public abstract class FragmentTrains <T extends FragmentTrains.LoaderHtml> exten
     // Вспомогательные методы
 
     public void setStationFrom(String station) {
-        stationFrom = station;
+        newStationFrom = station;
     }
 
     public void setStationTo(String station) {
-        stationTo = station;
+        newStationTo = station;
     }
 
     public void startLoaderTrains(){

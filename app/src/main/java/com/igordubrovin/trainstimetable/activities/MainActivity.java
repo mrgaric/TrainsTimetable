@@ -10,6 +10,8 @@ import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -108,7 +110,10 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
     public void onBackPressed() {
         if(drawer.isDrawerOpen()){
             drawer.closeDrawer();
-        }else super.onBackPressed();
+        }else {
+            setVisibleSelectFragment();
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -139,7 +144,6 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
                     containerItemToolbar.setVisibility(View.VISIBLE);
                     break;
             }
-
             if (liked)
                 setLiked(savedInstanceState.getInt("likedId"));
             if (!stationFrom.equals("")){
@@ -155,11 +159,7 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main_activity, menu);
         calendarMenuItem = menu.findItem(R.id.menu_calendar);
-        if (fragmentSelectionTrain.getTabsPosition() == 2) {
-            setVisibleMenuCalendar();
-        } else {
-            setGoneMenuCalendar();
-        }
+        onChangeTabListener.onChangeSelectTab(fragmentSelectionTrain.getTabsPosition());
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -179,24 +179,16 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
             if (drawerItem != null){
                 switch (position){
                     case 1:
-                        containerItemToolbar.setVisibility(View.VISIBLE);
+                        setVisibleSelectFragment();
                         getSupportFragmentManager().popBackStack();
-                        setVisibleTabLayout();
-                        setVisibleMenuCalendar();
                         break;
                     case 2:
                         FragmentLiked fragmentLiked = new FragmentLiked();
                         fragmentLiked.setActionListener(listenerActionLikedFragment);
-                        getSupportFragmentManager().beginTransaction()
-                                .addToBackStack(ConstProject.FRAGMENT_SELECTION_TRAIN)
-                                .replace(R.id.fragmentContainer, fragmentLiked, ConstProject.FRAGMENT_LIKED_ROUTE)
-                                .commit();
+                        replaceFragment(fragmentLiked, ConstProject.FRAGMENT_LIKED_ROUTE);
                         containerItemToolbar.setVisibility(View.GONE);
                         setGoneTabLayout();
                         setGoneMenuCalendar();
-                        break;
-                    case 3:
-
                         break;
                 }
                 appBarLayout.setExpanded(true);
@@ -204,6 +196,28 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
             return false;
         }
     };
+
+    private void setVisibleSelectFragment(){
+        containerItemToolbar.setVisibility(View.VISIBLE);
+        setVisibleTabLayout();
+        drawer.setSelection(0, false);
+    }
+
+    private void removeFragment(Fragment fragment){
+        if (fragment != null)
+            getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+    }
+
+    private void replaceFragment(Fragment fragment, String tag){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        if (fragmentManager.findFragmentByTag(tag) == null) {
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            if (fragmentManager.getBackStackEntryCount() == 0)
+                fragmentTransaction.addToBackStack("fragmentSelection");
+            fragmentTransaction.replace(R.id.fragmentContainer, fragment, tag)
+                    .commit();
+        }
+    }
 
     View.OnClickListener tvSearchStationClick = new View.OnClickListener() {
         @Override
@@ -258,8 +272,6 @@ public class MainActivity extends AppCompatActivity implements CPLikedHelper.Loa
             Snackbar.make(getWindow().getDecorView().getRootView(), "Дата не выбрана", BaseTransientBottomBar.LENGTH_SHORT).show();
         }
     };
-
-
 
     //other methods
 

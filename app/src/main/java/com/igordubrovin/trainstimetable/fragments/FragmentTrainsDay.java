@@ -11,6 +11,9 @@ import java.util.List;
 
 public class FragmentTrainsDay extends FragmentTrainsImmediate {
 
+    private String stationFrom;
+    private String stationTo;
+
     @Override
     protected FragmentTrainsImmediate.LoaderTrains createLoader() {
         return new LoaderTrains();
@@ -18,9 +21,16 @@ public class FragmentTrainsDay extends FragmentTrainsImmediate {
 
     @Override
     public void startLoaderTrains() {
-        if (trainList == null)
+        if (trainList == null || (!stationFrom.equals(newStationFrom)) || !stationTo.equals(newStationTo)) {
             super.startLoaderTrains();
+            stationFrom = newStationFrom;
+            stationTo = newStationTo;
+        }
         else stopRefresh();
+    }
+
+    public void clearTrainsDay(){
+        trainList = null;
     }
 
     private class LoaderTrains extends FragmentTrainsImmediate.LoaderTrains {
